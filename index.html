@@ -1,0 +1,4165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Footprints - Science Adventure</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      background-color: #f0fdf4;
+      background-image: radial-gradient(#bbf7d0 1.2px, transparent 1.2px), radial-gradient(#e0f2fe 1.2px, #f0fdf4 1.2px);
+      background-size: 36px 36px;
+      background-position: 0 0, 18px 18px;
+    }
+
+    /* 3D Duolingo Tactile Buttons */
+    .duo-btn-green {
+      background-color: #22c55e;
+      box-shadow: 0 6px 0 #15803d;
+      transition: all 0.1s ease;
+    }
+    .duo-btn-green:hover {
+      background-color: #16a34a;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 #15803d;
+    }
+    .duo-btn-green:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #15803d;
+    }
+
+    .duo-btn-blue {
+      background-color: #0ea5e9;
+      box-shadow: 0 6px 0 #0369a1;
+      transition: all 0.1s ease;
+    }
+    .duo-btn-blue:hover {
+      background-color: #0284c7;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 #0369a1;
+    }
+    .duo-btn-blue:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #0369a1;
+    }
+
+    .duo-btn-purple {
+      background-color: #a855f7;
+      box-shadow: 0 6px 0 #7e22ce;
+      transition: all 0.1s ease;
+    }
+    .duo-btn-purple:hover {
+      background-color: #9333ea;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 #7e22ce;
+    }
+    .duo-btn-purple:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #7e22ce;
+    }
+
+    .duo-btn-amber {
+      background-color: #f59e0b;
+      box-shadow: 0 6px 0 #b45309;
+      transition: all 0.1s ease;
+    }
+    .duo-btn-amber:hover {
+      background-color: #d97706;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 #b45309;
+    }
+    .duo-btn-amber:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #b45309;
+    }
+
+    .duo-card {
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+    }
+    .duo-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 16px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Keyframe Animations */
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+    .animate-float {
+      animation: floaty 3.5s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.6)); }
+      50% { transform: scale(1.06); filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.9)); }
+    }
+    .animate-glow {
+      animation: pulseGlow 2.2s infinite ease-in-out;
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-5deg); }
+      75% { transform: rotate(5deg); }
+    }
+    .animate-wiggle {
+      animation: wiggle 1.2s infinite ease-in-out;
+    }
+
+    /* Interactive Simulation Canvas Styling */
+    .lab-canvas-container {
+      background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+      border: 3px solid #334155;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col justify-between selection:bg-amber-200">
+
+  <!-- Header Bar -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-4 border-emerald-200 shadow-sm px-4 py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="showView('map')">
+        <div id="headerScientistBadge" class="w-12 h-12 p-2 bg-gradient-to-tr from-cyan-400 via-sky-500 to-indigo-500 rounded-2xl flex items-center justify-center text-3xl shadow-md border-2 border-indigo-400 animate-float">
+          <span id="headerScientistAvatar">🧑‍🔬</span>
+        </div>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-black tracking-wide text-emerald-600 flex items-center gap-2">
+            FOOTPRINTS <span class="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full uppercase tracking-wider font-extrabold border border-emerald-300">Grade 3</span>
+          </h1>
+          <p class="text-xs text-slate-500 font-bold" id="greetingNameDisplay">Welcome Explorer!</p>
+        </div>
+      </div>
+
+      <!-- Duolingo status treats, streaks, lives, voice -->
+      <div class="flex items-center gap-2 sm:gap-4 md:gap-5">
+        <!-- Candies / Treat Shop Trigger Button -->
+        <button onclick="openTreatShop()" class="flex items-center gap-1.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-3 py-1 rounded-2xl font-black text-sm md:text-base shadow-md border-2 border-pink-300 hover:scale-105 active:scale-95 transition" title="Open Science Treat Rewards Shop!">
+          <span class="text-lg animate-bounce">🍬</span>
+          <span id="candyCount">50</span>
+          <span class="text-xs uppercase bg-white/20 px-1.5 py-0.5 rounded-lg font-black ml-1 hidden sm:inline">Shop 🎁</span>
+        </button>
+        <!-- Streaks -->
+        <div class="flex items-center gap-1.5 bg-orange-50 border-2 border-orange-300 text-orange-600 px-3 py-1 rounded-2xl font-black text-sm md:text-base shadow-sm">
+          <span class="text-lg">🔥</span>
+          <span id="streakCount">3</span>
+        </div>
+        <!-- Hearts -->
+        <div class="flex items-center gap-1.5 bg-rose-50 border-2 border-rose-300 text-rose-600 px-3 py-1 rounded-2xl font-black text-sm md:text-base shadow-sm">
+          <span class="text-lg">❤️</span>
+          <span id="livesCount">5</span>
+        </div>
+        <!-- Voice Narrator toggle -->
+        <button id="ttsAudioToggle" onclick="toggleAudioSpeech()" class="px-3 py-1.5 rounded-2xl bg-indigo-50 border-2 border-indigo-300 text-indigo-700 font-extrabold text-sm hover:bg-indigo-100 transition shadow-sm flex items-center gap-1" title="Toggle English Voice Narrator">
+          <span id="ttsIcon">🔊</span>
+          <span class="hidden sm:inline text-xs uppercase">Voice</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="appContainer" class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col">
+    <!-- Dynamic views: Onboarding, Chapter Map, Lesson Simulation, Glossary, Review Quiz, Retest, Diploma -->
+  </main>
+
+  <!-- Mascot Floating Helper widget -->
+  <div id="mascotBubbleWidget" class="max-w-6xl w-full mx-auto px-4 pb-2 hidden md:block">
+    <div class="bg-white/90 backdrop-blur-md rounded-2xl border-2 border-amber-300 p-3 shadow-md flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-amber-100 border-2 border-amber-400 flex items-center justify-center text-2xl animate-wiggle">
+          🐶
+        </div>
+        <div>
+          <p class="text-xs font-black text-amber-700 uppercase">Newton the Science Pup</p>
+          <p id="mascotSpeechText" class="text-sm font-bold text-slate-700">"Welcome to science quest! Pick a chapter to start exploring!"</p>
+        </div>
+      </div>
+      <button onclick="speakMascotTip()" class="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-xl text-xs font-black border border-amber-300 flex items-center gap-1">
+        <span>🔊 Repeat</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer with mandatory author attribution -->
+  <footer class="bg-white border-t-4 border-emerald-200 text-center py-4 px-4 shadow-sm mt-4">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between text-slate-600 text-sm font-bold gap-3">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🧪</span>
+        <span class="text-slate-700 font-extrabold">Footprints Science Interactive Adventure • Chapters 11 to 15</span>
+      </div>
+      <div class="text-emerald-700 font-black text-base bg-emerald-50 border-2 border-emerald-300 px-5 py-1.5 rounded-full shadow-inner">
+        By : Ing. Milko Gonzales C.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal feedback overlay -->
+  <div id="feedbackModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="feedbackCard" class="bg-white rounded-3xl max-w-md w-full p-6 text-center border-4 transform transition-all duration-200 shadow-2xl">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+
+  <div id="treatShopModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 text-center border-4 border-pink-400 shadow-2xl relative transform transition-all">
+      <!-- Close button -->
+      <button onclick="closeTreatShop()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 font-black text-xl flex items-center justify-center transition border border-slate-300">
+        ✕
+      </button>
+
+      <!-- Shop Header -->
+      <div class="flex items-center justify-center gap-3 mb-1">
+        <span class="text-4xl animate-bounce">🎁</span>
+        <h3 class="text-2xl md:text-3xl font-black text-slate-800">Science Treat & Rewards Shop</h3>
+      </div>
+      <p class="text-xs font-black uppercase tracking-wider text-pink-600 mb-4">Trade Your Candies for Super Scientist Avatars & Lab Gear!</p>
+
+      <!-- Candy Wallet Display in Shop -->
+      <div class="inline-flex items-center gap-2 bg-pink-100 border-2 border-pink-300 text-pink-900 px-5 py-2 rounded-2xl font-black text-lg shadow-inner mb-6">
+        <span>Your Treat Stash:</span>
+        <span class="text-2xl">🍬</span>
+        <span id="shopCandyBalance" class="text-2xl font-black text-pink-700">50</span>
+        <span class="text-xs uppercase bg-white/70 px-2 py-0.5 rounded-lg border border-pink-300">Candies</span>
+      </div>
+
+      <!-- Shop Items Grid -->
+      <div id="shopItemsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6 max-h-[60vh] overflow-y-auto p-1">
+        <!-- Injected dynamically by JS -->
+      </div>
+
+      <!-- Footer button -->
+      <button onclick="closeTreatShop()" class="duo-btn-green py-3.5 px-8 text-white font-black text-base rounded-2xl uppercase tracking-wider shadow-md w-full">
+        Back to Science Quest 🚀
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Concept Exploration Modal with Live Animation Canvas -->
+  <div id="conceptModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div id="conceptModalCard" class="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 text-center border-4 border-amber-400 shadow-2xl relative transform transition-all">
+      <!-- Close button -->
+      <button onclick="closeConceptDemo()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 font-black text-xl flex items-center justify-center transition border border-slate-300">
+        ✕
+      </button>
+
+      <!-- Dynamic Header -->
+      <div class="flex items-center justify-center gap-3 mb-2">
+        <span id="conceptIcon" class="text-4xl animate-bounce">✂️</span>
+        <h3 id="conceptTitle" class="text-2xl md:text-3xl font-black text-slate-800">Physical Change</h3>
+      </div>
+      <p id="conceptSubtitle" class="text-xs font-black uppercase tracking-wider text-emerald-600 mb-4">Interactive Didactic Demonstration</p>
+
+      <!-- Live Animation Canvas -->
+      <div class="lab-canvas-container rounded-2xl p-3 mb-4 flex flex-col items-center">
+        <canvas id="conceptCanvas" width="500" height="210" class="w-full max-w-md rounded-xl"></canvas>
+        <p id="conceptCanvasCaption" class="mt-2 text-xs md:text-sm font-black text-amber-200 text-center px-2">
+          Notice how the shape changes, but the material stays exactly the same!
+        </p>
+      </div>
+
+      <!-- Explanation Box -->
+      <div class="bg-amber-50/80 border-2 border-amber-200 rounded-2xl p-4 text-left mb-5">
+        <p id="conceptExplanationText" class="text-xs md:text-sm font-bold text-slate-700 leading-relaxed">
+          Explanation goes here...
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3">
+        <button onclick="repeatConceptSpeech()" class="px-5 py-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-2 border-indigo-300 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition shadow-sm">
+          <span>🔊 Read Again</span>
+        </button>
+        <button onclick="closeConceptDemo()" class="duo-btn-green flex-grow py-3.5 px-6 text-white font-black text-base rounded-2xl uppercase tracking-wider shadow-md">
+          Got It! 👍
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* AUDIO SYNTHESIZER & SPEECH NORMALIZATION */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let voiceEnabled = true;
+    let selectedVoice = null;
+
+    function loadVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices || voices.length === 0) return;
+      
+      selectedVoice = voices.find(v => (v.lang === 'en-US' || v.lang === 'en_US') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Junior')))
+        || voices.find(v => v.lang.startsWith('en'))
+        || voices[0];
+    }
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+      loadVoices();
+    }
+
+    function playTone(type = 'success') {
+      try {
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'success') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(680, now + 0.18);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'error') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.linearRampToValueAtTime(130, now + 0.25);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'candy') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(783.99, now + 0.08);
+          osc.frequency.setValueAtTime(1046.50, now + 0.16);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.32);
+          osc.start(now);
+          osc.stop(now + 0.32);
+        }
+      } catch (e) {
+        // silent fallback
+      }
+    }
+
+    /**
+     * PHONETIC CLEANER:
+     * Prevents speech synthesis from spelling words out letter by letter.
+     */
+    function cleanTextForSpeech(raw) {
+      if (!raw) return "";
+      let s = raw.toString();
+
+      // Strip emojis
+      s = s.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}]/gu, " ");
+
+      // Convert ALL-CAPS words to Title Case to stop acronym spelling
+      s = s.replace(/\b[A-Z]{2,}\b/g, (match) => {
+        return match.charAt(0) + match.slice(1).toLowerCase();
+      });
+
+      // Spoken numbers & chapters
+      s = s.replace(/\b(ch|chap|capitulo|capítulo|cpitulo|cp)\.?\s*11\b/gi, "Chapter eleven");
+      s = s.replace(/\b(ch|chap|capitulo|capítulo|cpitulo|cp)\.?\s*12\b/gi, "Chapter twelve");
+      s = s.replace(/\b(ch|chap|capitulo|capítulo|cpitulo|cp)\.?\s*13\b/gi, "Chapter thirteen");
+      s = s.replace(/\b(ch|chap|capitulo|capítulo|cpitulo|cp)\.?\s*14\b/gi, "Chapter fourteen");
+      s = s.replace(/\b(ch|chap|capitulo|capítulo|cpitulo|cp)\.?\s*15\b/gi, "Chapter fifteen");
+
+      s = s.replace(/Chapter 11\b/gi, "Chapter eleven");
+      s = s.replace(/Chapter 12\b/gi, "Chapter twelve");
+      s = s.replace(/Chapter 13\b/gi, "Chapter thirteen");
+      s = s.replace(/Chapter 14\b/gi, "Chapter fourteen");
+      s = s.replace(/Chapter 15\b/gi, "Chapter fifteen");
+
+      s = s.replace(/\b11\b/g, "eleven");
+      s = s.replace(/\b12\b/g, "twelve");
+      s = s.replace(/\b13\b/g, "thirteen");
+      s = s.replace(/\b14\b/g, "fourteen");
+      s = s.replace(/\b15\b/g, "fifteen");
+      s = s.replace(/80%/g, "eighty percent");
+      s = s.replace(/%/g, " percent ");
+      s = s.replace(/&/g, " and ");
+      s = s.replace(/°C/g, " degrees Celsius ");
+      s = s.replace(/°F/g, " degrees Fahrenheit ");
+      s = s.replace(/\//g, " or ");
+      s = s.replace(/vs\.?/gi, " versus ");
+      s = s.replace(/_+/g, " blank ");
+
+      s = s.replace(/[*#`~▲▼►◀]/g, " ");
+      return s.trim();
+    }
+
+    function speakEnglish(text) {
+      if (!voiceEnabled || !('speechSynthesis' in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const cleaned = cleanTextForSpeech(text);
+        const utterance = new SpeechSynthesisUtterance(cleaned);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.92;
+        utterance.pitch = 1.05;
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+        }
+        window.speechSynthesis.speak(utterance);
+      } catch (err) {
+        console.warn("Speech error:", err);
+      }
+    }
+
+    function toggleAudioSpeech() {
+      voiceEnabled = !voiceEnabled;
+      const icon = document.getElementById('ttsIcon');
+      const btn = document.getElementById('ttsAudioToggle');
+      if (icon && btn) {
+        icon.textContent = voiceEnabled ? '🔊' : '🔇';
+        btn.className = voiceEnabled 
+          ? "px-3 py-1.5 rounded-2xl bg-indigo-50 border-2 border-indigo-300 text-indigo-700 font-extrabold text-sm hover:bg-indigo-100 transition shadow-sm flex items-center gap-1"
+          : "px-3 py-1.5 rounded-2xl bg-gray-100 border-2 border-gray-300 text-gray-500 font-extrabold text-sm transition shadow-sm flex items-center gap-1";
+      }
+      if (voiceEnabled) {
+        speakEnglish("Voice narrator turned on! Let's explore science together!");
+      } else {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    function updateMascotMessage(text) {
+      const el = document.getElementById('mascotSpeechText');
+      if (el) el.textContent = `"${text}"`;
+    }
+
+    function speakMascotTip() {
+      const el = document.getElementById('mascotSpeechText');
+      if (el) speakEnglish(el.textContent);
+    }
+
+    /* APP STATE */
+    const state = {
+      studentName: localStorage.getItem('fp_studentName') || '',
+      currentChapterId: 11,
+      candies: parseInt(localStorage.getItem('fp_candies')) || 50,
+      streak: 3,
+      lives: 5,
+      completedChapters: JSON.parse(localStorage.getItem('fp_completed') || '{}'),
+      view: 'welcome',
+      wrongAnswers: [],
+      equippedAvatar: localStorage.getItem('fp_avatar') || '🧑‍🔬',
+      unlockedRewards: JSON.parse(localStorage.getItem('fp_rewards') || '["default_scientist"]')
+    };
+
+    const shopCatalog = [
+      {
+        id: 'default_scientist',
+        name: 'Lab Chemist',
+        avatar: '🧑‍🔬',
+        price: 0,
+        description: 'Classic curious laboratory scientist with safety goggles!'
+      },
+      {
+        id: 'cyber_goggles',
+        name: 'Cyber Goggles',
+        avatar: '🥽',
+        price: 15,
+        description: 'X-ray visual sensors to discover hidden science mysteries!'
+      },
+      {
+        id: 'einstein_hair',
+        name: 'Genius Inventor',
+        avatar: '⚡🧑‍🔬',
+        price: 25,
+        description: 'Supercharged wild genius hair for lightning-fast thinking!'
+      },
+      {
+        id: 'astro_scientist',
+        name: 'Cosmic Astronaut',
+        avatar: '🧑‍🚀',
+        price: 35,
+        description: 'Explore zero-gravity forces, space matter, and alien planets!'
+      },
+      {
+        id: 'dino_scientist',
+        name: 'Dino Researcher',
+        avatar: '🦖🧑‍🔬',
+        price: 45,
+        description: 'Paleontology explorer studying ancient rocks and forces!'
+      },
+      {
+        id: 'robo_pup',
+        name: 'Robo-Pup Companion',
+        avatar: '🤖🐶',
+        price: 55,
+        description: 'A loyal high-tech bionic robot puppy that helps in experiments!'
+      },
+      {
+        id: 'wizard_scientist',
+        name: 'Magic Alchemist',
+        avatar: '🧙‍♂️🧪',
+        price: 65,
+        description: 'Turns physical and chemical changes into dazzling lab magic!'
+      },
+      {
+        id: 'heart_refill',
+        name: 'Super Heart Boost',
+        avatar: '💖',
+        price: 10,
+        isConsumable: true,
+        description: 'Refills your lives immediately to 5 full hearts for review quizzes!'
+      }
+    ];
+
+    function saveState() {
+      localStorage.setItem('fp_studentName', state.studentName);
+      localStorage.setItem('fp_candies', state.candies);
+      localStorage.setItem('fp_completed', JSON.stringify(state.completedChapters));
+      localStorage.setItem('fp_avatar', state.equippedAvatar);
+      localStorage.setItem('fp_rewards', JSON.stringify(state.unlockedRewards));
+    }
+
+    function updateStatsUI() {
+      const greeting = document.getElementById('greetingNameDisplay');
+      if (greeting) {
+        greeting.textContent = state.studentName ? `Hi, ${state.studentName}! ✨` : 'Welcome Explorer!';
+      }
+      const c = document.getElementById('candyCount');
+      if (c) c.textContent = state.candies;
+      const s = document.getElementById('streakCount');
+      if (s) s.textContent = state.streak;
+      const l = document.getElementById('livesCount');
+      if (l) l.textContent = state.lives;
+
+      // Update equipped avatar badge in header
+      const headerAvatar = document.getElementById('headerScientistAvatar');
+      if (headerAvatar) {
+        headerAvatar.textContent = state.equippedAvatar;
+      }
+      saveState();
+    }
+
+    function openTreatShop() {
+      const modal = document.getElementById('treatShopModal');
+      const balance = document.getElementById('shopCandyBalance');
+      if (balance) balance.textContent = state.candies;
+      renderShopItems();
+      if (modal) modal.classList.remove('hidden');
+      playTone('candy');
+      speakEnglish(`Welcome to the Treat Rewards Shop! You have ${state.candies} candies. Pick an awesome scientist avatar or lab gadget to unlock!`);
+      updateMascotMessage("Spend your candy treats here to unlock epic scientist skins and gadgets!");
+    }
+
+    function closeTreatShop() {
+      const modal = document.getElementById('treatShopModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderShopItems() {
+      const container = document.getElementById('shopItemsContainer');
+      if (!container) return;
+
+      container.innerHTML = shopCatalog.map(item => {
+        const isUnlocked = state.unlockedRewards.includes(item.id);
+        const isEquipped = state.equippedAvatar === item.avatar && !item.isConsumable;
+        const canAfford = state.candies >= item.price;
+
+        let actionBtnHtml = '';
+        if (item.isConsumable) {
+          actionBtnHtml = `
+            <button onclick="purchaseShopItem('${item.id}')" ${canAfford ? '' : 'disabled'}
+              class="${canAfford ? 'duo-btn-green' : 'bg-slate-200 text-slate-400 cursor-not-allowed'} w-full py-2 px-3 text-white font-black text-xs rounded-xl shadow-sm">
+              ${canAfford ? `Buy for 🍬 ${item.price}` : `Need 🍬 ${item.price}`}
+            </button>
+          `;
+        } else if (isEquipped) {
+          actionBtnHtml = `
+            <div class="w-full py-2 px-3 bg-emerald-100 border-2 border-emerald-400 text-emerald-800 font-black text-xs rounded-xl text-center shadow-inner">
+              ✨ Equipped!
+            </div>
+          `;
+        } else if (isUnlocked) {
+          actionBtnHtml = `
+            <button onclick="equipShopAvatar('${item.id}')" class="duo-btn-blue w-full py-2 px-3 text-white font-black text-xs rounded-xl shadow-sm">
+              👔 Equip Avatar
+            </button>
+          `;
+        } else {
+          actionBtnHtml = `
+            <button onclick="purchaseShopItem('${item.id}')" ${canAfford ? '' : 'disabled'}
+              class="${canAfford ? 'duo-btn-amber' : 'bg-slate-200 text-slate-400 cursor-not-allowed'} w-full py-2 px-3 text-white font-black text-xs rounded-xl shadow-sm">
+              ${canAfford ? `Unlock for 🍬 ${item.price}` : `Need 🍬 ${item.price}`}
+            </button>
+          `;
+        }
+
+        return `
+          <div class="duo-card bg-slate-50 border-3 ${isEquipped ? 'border-emerald-400 ring-4 ring-emerald-200 bg-emerald-50/50' : 'border-slate-200 hover:border-pink-300'} p-3.5 rounded-2xl flex flex-col justify-between items-center text-center shadow-sm">
+            <div class="w-14 h-14 rounded-2xl ${isEquipped ? 'bg-emerald-200 border-2 border-emerald-400' : 'bg-pink-100 border-2 border-pink-200'} flex items-center justify-center text-3xl mb-2 shadow-sm animate-float">
+              ${item.avatar}
+            </div>
+            <h5 class="text-sm font-black text-slate-800">${item.name}</h5>
+            <p class="text-[11px] font-bold text-slate-500 my-1 leading-tight">${item.description}</p>
+            <div class="w-full mt-2">
+              ${actionBtnHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function purchaseShopItem(itemId) {
+      const item = shopCatalog.find(i => i.id === itemId);
+      if (!item) return;
+
+      if (state.candies < item.price) {
+        playTone('error');
+        speakEnglish("You need more candies to unlock this! Complete chapter quizzes to earn more treats!");
+        return;
+      }
+
+      state.candies -= item.price;
+
+      if (item.isConsumable) {
+        state.lives = 5;
+        playTone('success');
+        if (window.confetti) {
+          window.confetti({ particleCount: 60, spread: 55, origin: { y: 0.6 } });
+        }
+        speakEnglish("Super Heart Boost activated! Your lives are refilled to 5 hearts!");
+      } else {
+        if (!state.unlockedRewards.includes(item.id)) {
+          state.unlockedRewards.push(item.id);
+        }
+        state.equippedAvatar = item.avatar;
+        playTone('candy');
+        if (window.confetti) {
+          window.confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+        }
+        speakEnglish(`Awesome! You unlocked and equipped the ${item.name}! You look like a true science genius!`);
+      }
+
+      updateStatsUI();
+      const balance = document.getElementById('shopCandyBalance');
+      if (balance) balance.textContent = state.candies;
+      renderShopItems();
+    }
+
+    function equipShopAvatar(itemId) {
+      const item = shopCatalog.find(i => i.id === itemId);
+      if (!item) return;
+      state.equippedAvatar = item.avatar;
+      playTone('success');
+      speakEnglish(`Equipped ${item.name}!`);
+      updateStatsUI();
+      renderShopItems();
+    }
+
+    function getMissedTerms() {
+      const set = new Set();
+      state.wrongAnswers.forEach(q => {
+        if (q.answer) {
+          const clean = q.answer.replace(/^[A-D]\.\s*/i, '').toLowerCase().trim();
+          set.add(clean);
+        }
+        const fullText = ((q.question || '') + ' ' + (q.explanation || '') + ' ' + (q.answer || '')).toLowerCase();
+        const checkTerms = [
+          'physical change', 'chemical change', 'strainer', 'filter', 'solution', 
+          'alloy', 'dissolve', 'kinetic energy', 'potential energy', 'electric circuit', 
+          'electric current', 'heat', 'temperature', 'thermal energy', 'friction', 
+          'color', 'reflect', 'refract', 'force', 'work', 'gravity'
+        ];
+        checkTerms.forEach(t => {
+          if (fullText.includes(t)) {
+            set.add(t);
+          }
+        });
+      });
+      return set;
+    }
+
+    function isTermMissed(term) {
+      if (!term) return false;
+      const missed = getMissedTerms();
+      const clean = term.toLowerCase().trim();
+      for (const m of missed) {
+        if (clean === m || clean.includes(m) || m.includes(clean)) return true;
+      }
+      return false;
+    }
+
+    /* CHAPTER DATA (11 to 15) FROM TEXTBOOK */
+    const chaptersData = {
+      11: {
+        number: 11,
+        title: "Matter Changes",
+        subtitle: "Solids, Liquids, Gases, Physical and Chemical Changes",
+        spokenTitle: "Chapter eleven: Matter Changes",
+        themeColor: "from-blue-500 via-sky-400 to-cyan-500",
+        badgeBg: "bg-blue-100 text-blue-700 border-blue-300",
+        btnClass: "duo-btn-blue",
+        badge: "🧊💧💨",
+        glossary: [
+          { term: "matter", def: "Anything that has mass and takes up space.", icon: "📦" },
+          { term: "solid", def: "Matter that has a definite shape and takes up a definite amount of space.", icon: "🧱" },
+          { term: "liquid", def: "Matter that has a definite volume but takes the shape of its container.", icon: "🥛" },
+          { term: "gas", def: "Matter that has no definite shape and does not take up a definite amount of space.", icon: "🎈" },
+          { term: "mass", def: "The amount of matter in an object, measured with a balance.", icon: "⚖️" },
+          { term: "volume", def: "The amount of space an object takes up.", icon: "📏" },
+          { term: "physical property", def: "A trait of matter that can be observed or measured (color, size, shape).", icon: "🔍" },
+          { term: "physical change", def: "A change in the size, shape, or state of matter without forming new matter.", icon: "✂️" },
+          { term: "melt", def: "When a solid absorbs heat and changes state to become a liquid.", icon: "🍦" },
+          { term: "freeze", def: "When a liquid loses heat and changes state to become a solid.", icon: "🧊" },
+          { term: "evaporate", def: "When liquids slowly change state to a gas.", icon: "☀️" },
+          { term: "condense", def: "When gases cool and change state to become liquids.", icon: "💧" },
+          { term: "chemical change", def: "A change where a completely new kind of matter with different properties is formed.", icon: "🧪" },
+          { term: "chemical property", def: "A property that describes how matter can react with other kinds of matter (burn, rust).", icon: "🔥" }
+        ],
+        reviewQuiz: [
+          {
+            id: 'c11_v1',
+            question: "When solids change state to become liquids, they ________.",
+            options: ["evaporate", "freeze", "melt", "condense"],
+            answer: "melt",
+            explanation: "Adding heat causes solids like ice to melt into liquid water!"
+          },
+          {
+            id: 'c11_v2',
+            question: "The amount of matter in an object is the ________ of that object.",
+            options: ["mass", "volume", "gas", "chemical change"],
+            answer: "mass",
+            explanation: "Mass measures how much matter is inside an object, weighed using a balance."
+          },
+          {
+            id: 'c11_v3',
+            question: "A/an ________ describes how matter can react with other kinds of matter.",
+            options: ["physical property", "chemical property", "balance", "alloy"],
+            answer: "chemical property",
+            explanation: "Chemical properties describe reactions such as burning, rusting, or reacting with acids."
+          },
+          {
+            id: 'c11_v4',
+            question: "Solid, ________, and gas are three states of matter.",
+            options: ["liquid", "heat", "mass", "mixture"],
+            answer: "liquid",
+            explanation: "The three physical states of matter are solid, liquid, and gas."
+          },
+          {
+            id: 'c11_v5',
+            question: "When gases change state to become liquids, they ________.",
+            options: ["melt", "condense", "burn", "evaporate"],
+            answer: "condense",
+            explanation: "Cooling causes gas molecules to condense into liquid water drops on cool surfaces."
+          },
+          {
+            id: 'c11_v6',
+            question: "Matter that has a definite shape and takes up a definite amount of space is a/an ________.",
+            options: ["solid", "liquid", "gas", "volume"],
+            answer: "solid",
+            explanation: "Solids retain their rigid shape and exact volume."
+          },
+          {
+            id: 'c11_v7',
+            question: "When liquids slowly change to a gas, they ________.",
+            options: ["freeze", "condense", "evaporate", "dissolve"],
+            answer: "evaporate",
+            explanation: "Water puddles slowly evaporate into invisible vapor under the warm sun."
+          },
+          {
+            id: 'c11_v8',
+            question: "Matter that has no definite shape and does not take up a definite amount of space is a/an ________.",
+            options: ["gas", "solid", "mass", "liquid"],
+            answer: "gas",
+            explanation: "Gases expand freely in all directions to fill any container."
+          },
+          {
+            id: 'c11_v9',
+            question: "When liquids change state to become solids, they ________.",
+            options: ["freeze", "melt", "rust", "evaporate"],
+            answer: "freeze",
+            explanation: "Water freezes into solid ice when cooled down to 0 degrees Celsius."
+          },
+          {
+            id: 'c11_v10',
+            question: "Anything that has mass and takes up space is ________.",
+            options: ["matter", "energy", "pitch", "force"],
+            answer: "matter",
+            explanation: "Everything you see and touch is made of matter!"
+          },
+          {
+            id: 'c11_q11',
+            question: "11. A trait of matter that can be measured or observed is called a ________.",
+            options: ["A. chemical property", "B. chemical change", "C. physical property", "D. physical change"],
+            answer: "C. physical property",
+            explanation: "Color, hardness, shape, and size are observable physical properties."
+          },
+          {
+            id: 'c11_q12',
+            question: "12. The amount of space an object takes up is called its ________.",
+            options: ["A. mass", "B. weight", "C. length", "D. volume"],
+            answer: "D. volume",
+            explanation: "Volume measures the 3D space occupied by matter."
+          },
+          {
+            id: 'c11_q13',
+            question: "13. Cutting is a ________ because it only changes the way matter looks.",
+            options: ["A. chemical change", "B. physical change", "C. chemical property", "D. state of matter"],
+            answer: "B. physical change",
+            explanation: "Cutting changes the shape and size, but does not form any new matter."
+          },
+          {
+            id: 'c11_q14',
+            question: "14. Which of the following is an example of a chemical change?",
+            options: ["A. burning wood", "B. boiling water", "C. molding clay", "D. melting ice"],
+            answer: "A. burning wood",
+            explanation: "Burning wood creates ash and smoke: completely new kinds of matter!"
+          }
+        ]
+      },
+      12: {
+        number: 12,
+        title: "Mixtures",
+        subtitle: "Separating Mixtures, Strainers, Filters, Solutions and Alloys",
+        spokenTitle: "Chapter twelve: Mixtures",
+        themeColor: "from-amber-400 via-orange-400 to-emerald-500",
+        badgeBg: "bg-amber-100 text-amber-800 border-amber-300",
+        btnClass: "duo-btn-amber",
+        badge: "🥣🥗🔬",
+        glossary: [
+          { term: "mixture", def: "Matter made of two or more substances that are physically combined.", icon: "🥗" },
+          { term: "substance", def: "A single kind of matter that has certain properties and is always the same throughout.", icon: "🧂" },
+          { term: "filter", def: "A device or material that traps some substances and allows others to pass through.", icon: "☕" },
+          { term: "strainer", def: "A tool with holes that separates solid pieces by size.", icon: "🕸️" },
+          { term: "solution", def: "A special mixture in which substances are evenly mixed so separate parts cannot be seen.", icon: "🧪" },
+          { term: "dissolve", def: "To mix completely with another substance to form a clear solution.", icon: "🌊" },
+          { term: "alloy", def: "A solid solution made of at least one metal (such as brass or steel).", icon: "🎺" }
+        ],
+        reviewQuiz: [
+          {
+            id: 'c12_v1',
+            question: "A single kind of matter that has certain properties and is always the same throughout is a/an ________.",
+            options: ["substance", "mixture", "filter", "alloy"],
+            answer: "substance",
+            explanation: "A pure substance like salt or gold has uniform properties throughout."
+          },
+          {
+            id: 'c12_v2',
+            question: "When substances mix completely to form a solution, one substance is said to ________ in the other.",
+            options: ["dissolve", "filter", "freeze", "rust"],
+            answer: "dissolve",
+            explanation: "Sugar and salt dissolve completely into clear water."
+          },
+          {
+            id: 'c12_v3',
+            question: "Matter made of two or more substances that are physically combined, or mixed together, is a/an ________.",
+            options: ["mixture", "element", "chemical property", "gas"],
+            answer: "mixture",
+            explanation: "A salad, trail mix, or sand in water is a mixture."
+          },
+          {
+            id: 'c12_v4',
+            question: "A device or material that traps some substances and allows others to pass through is a/an ________.",
+            options: ["filter", "solution", "alloy", "balance"],
+            answer: "filter",
+            explanation: "A filter traps larger particles while letting liquids or smaller particles flow through."
+          },
+          {
+            id: 'c12_v5',
+            question: "A mixture in which two or more kinds of matter are so evenly mixed that separate parts cannot be seen is called a/an ________.",
+            options: ["solution", "strainer", "chemical change", "mass"],
+            answer: "solution",
+            explanation: "In a solution, dissolved molecules spread out invisibly and evenly."
+          },
+          {
+            id: 'c12_v6',
+            question: "A solid solution made of at least one metal is called a/an ________.",
+            options: ["alloy", "filter", "gas", "wood"],
+            answer: "alloy",
+            explanation: "Brass and steel are solid metal solutions called alloys."
+          },
+          {
+            id: 'c12_q7',
+            question: "7. The parts of a mixture ________.",
+            options: ["A. cannot be separated.", "B. have new properties.", "C. keep their original properties.", "D. are always spread out evenly."],
+            answer: "C. keep their original properties.",
+            explanation: "In a mixture, each ingredient keeps its own original traits."
+          },
+          {
+            id: 'c12_q8',
+            question: "8. A filter separates substances by ________.",
+            options: ["A. temperature.", "B. size.", "C. color.", "D. age."],
+            answer: "B. size.",
+            explanation: "Filters separate substances based on particle size."
+          },
+          {
+            id: 'c12_q9',
+            question: "9. Unlike a mixture, the parts of a solution ________.",
+            options: ["A. cannot be seen.", "B. cannot be separated.", "C. have new properties.", "D. can be separated by hand."],
+            answer: "A. cannot be seen.",
+            explanation: "Because the particles are evenly dispersed, individual parts cannot be seen."
+          },
+          {
+            id: 'c12_q10',
+            question: "10. Dissolving salt in water is an example of ________.",
+            options: ["A. a chemical change.", "B. melting.", "C. a physical change.", "D. evaporating."],
+            answer: "C. a physical change.",
+            explanation: "Dissolving is physical: evaporating the water recovers pure salt unchanged."
+          }
+        ]
+      },
+      13: {
+        number: 13,
+        title: "Forms of Energy",
+        subtitle: "Kinetic, Potential, Sound Waves, Crests, Troughs and Electric Circuits",
+        spokenTitle: "Chapter thirteen: Forms of Energy",
+        themeColor: "from-yellow-400 via-amber-500 to-orange-500",
+        badgeBg: "bg-yellow-100 text-yellow-800 border-yellow-300",
+        btnClass: "duo-btn-amber",
+        badge: "⚡🔋〰️",
+        glossary: [
+          { term: "kinetic energy", def: "The energy an object has because of its motion.", icon: "🏃" },
+          { term: "potential energy", def: "The energy stored in an object because of its position or condition.", icon: "🏹" },
+          { term: "wave", def: "A movement that carries energy from place to place.", icon: "〰️" },
+          { term: "vibrate", def: "To move back and forth quickly.", icon: "📳" },
+          { term: "crest", def: "The highest point of a wave where particles are bunched together.", icon: "⛰️" },
+          { term: "trough", def: "The lowest point of a wave where particles are spread apart.", icon: "🌊" },
+          { term: "pitch", def: "How high or low a sound seems (depends on frequency).", icon: "🎵" },
+          { term: "volume", def: "How loud or soft a sound seems (depends on wave energy).", icon: "🔊" },
+          { term: "electric current", def: "The flow of charged particles through a conductor.", icon: "⚡" },
+          { term: "electric circuit", def: "A complete, closed loop path that electric current flows through.", icon: "💡" }
+        ],
+        reviewQuiz: [
+          {
+            id: 'c13_v1',
+            question: "To move back and forth quickly is to ________.",
+            options: ["vibrate", "condense", "melt", "dissolve"],
+            answer: "vibrate",
+            explanation: "Rapid vibrations produce sound waves through air and solids."
+          },
+          {
+            id: 'c13_v2',
+            question: "The energy that an object has because of its motion is called ________.",
+            options: ["kinetic energy", "potential energy", "chemical property", "pitch"],
+            answer: "kinetic energy",
+            explanation: "Any object moving possesses kinetic energy."
+          },
+          {
+            id: 'c13_v3',
+            question: "A movement that carries energy from place to place is a/an ________.",
+            options: ["wave", "circuit", "filter", "alloy"],
+            answer: "wave",
+            explanation: "Waves carry light, sound, and ocean energy across distances."
+          },
+          {
+            id: 'c13_v4',
+            question: "Electric current can flow only through a complete ________.",
+            options: ["electric circuit", "trough", "crest", "volume"],
+            answer: "electric circuit",
+            explanation: "A continuous closed loop circuit is required for electricity to flow."
+          },
+          {
+            id: 'c13_v5',
+            question: "The lowest point of a wave is the ________.",
+            options: ["trough", "crest", "pitch", "vibration"],
+            answer: "trough",
+            explanation: "The bottom point of a wave is the trough."
+          },
+          {
+            id: 'c13_v6',
+            question: "The energy stored in an object because of its position or the substances it is made of is ________.",
+            options: ["potential energy", "kinetic energy", "electric current", "volume"],
+            answer: "potential energy",
+            explanation: "Stored energy ready to be released is potential energy."
+          },
+          {
+            id: 'c13_v7',
+            question: "The highest point of a wave is the ________.",
+            options: ["crest", "trough", "battery", "pitch"],
+            answer: "crest",
+            explanation: "The highest peak of a wave is called the crest."
+          },
+          {
+            id: 'c13_v8',
+            question: "How loud or soft a sound seems is its ________.",
+            options: ["volume", "pitch", "circuit", "trough"],
+            answer: "volume",
+            explanation: "Volume measures the loudness of a sound."
+          },
+          {
+            id: 'c13_v9',
+            question: "The flow of charged particles is called ________.",
+            options: ["electric current", "vibration", "sound wave", "potential energy"],
+            answer: "electric current",
+            explanation: "Electric current powers household lights, motors, and devices."
+          },
+          {
+            id: 'c13_v10',
+            question: "How high or low a sound seems is its ________.",
+            options: ["pitch", "crest", "volume", "mass"],
+            answer: "pitch",
+            explanation: "Pitch depends directly on the frequency of the sound wave."
+          },
+          {
+            id: 'c13_q11',
+            question: "11. High-frequency sound waves produce sounds that are high in ________.",
+            options: ["A. pitch", "B. wavelength", "C. volume", "D. energy"],
+            answer: "A. pitch",
+            explanation: "Fast vibrations produce high pitch sounds like a bird whistle."
+          },
+          {
+            id: 'c13_q12',
+            question: "12. Moving charges produce a/an ________.",
+            options: ["A. wave", "B. vibration", "C. electric current", "D. complete circuit"],
+            answer: "C. electric current",
+            explanation: "Moving electrical charges constitute electric current."
+          },
+          {
+            id: 'c13_q13',
+            question: "13. When objects vibrate, they produce ________.",
+            options: ["A. chemical energy", "B. potential energy", "C. sound energy", "D. light energy"],
+            answer: "C. sound energy",
+            explanation: "Vibrations in air create sound energy."
+          },
+          {
+            id: 'c13_q14',
+            question: "14. Chemical energy is a form of ________.",
+            options: ["A. sound energy", "B. kinetic energy", "C. light energy", "D. potential energy"],
+            answer: "D. potential energy",
+            explanation: "Chemical energy in food and batteries is stored potential energy."
+          }
+        ]
+      },
+      14: {
+        number: 14,
+        title: "Heat, Temperature, and Light",
+        subtitle: "Thermal Energy, Friction, Reflection and Refraction",
+        spokenTitle: "Chapter fourteen: Heat, Temperature, and Light",
+        themeColor: "from-rose-500 via-pink-500 to-amber-500",
+        badgeBg: "bg-rose-100 text-rose-800 border-rose-300",
+        btnClass: "duo-btn-purple",
+        badge: "🔥🌡️🔦",
+        glossary: [
+          { term: "thermal energy", def: "The energy of moving particles of matter.", icon: "♨️" },
+          { term: "heat", def: "The flow of thermal energy from warmer objects to cooler objects.", icon: "🔥" },
+          { term: "temperature", def: "The measure of how hot or cold something is.", icon: "🌡️" },
+          { term: "thermometer", def: "A tool used to measure temperature in degrees Fahrenheit or Celsius.", icon: "📊" },
+          { term: "friction", def: "A force that slows down and stops motion between two surfaces touching.", icon: "🧤" },
+          { term: "light", def: "A form of energy that you can see and travels in straight waves.", icon: "💡" },
+          { term: "reflect", def: "When light waves bounce off an object.", icon: "🪞" },
+          { term: "refract", def: "To bend light as it passes from one material into another.", icon: "🌈" }
+        ],
+        reviewQuiz: [
+          {
+            id: 'c14_v1',
+            question: "A force that slows down and stops motion between two surfaces that touch is called ________.",
+            options: ["friction", "heat", "light", "refract"],
+            answer: "friction",
+            explanation: "Rubbing surfaces causes friction, slowing movement and generating heat."
+          },
+          {
+            id: 'c14_v2',
+            question: "When light waves bounce off an object, they ________.",
+            options: ["reflect", "refract", "freeze", "melt"],
+            answer: "reflect",
+            explanation: "Light reflects when bouncing off a mirror or bright surface."
+          },
+          {
+            id: 'c14_v3',
+            question: "A tool used to measure temperature is a ________.",
+            options: ["thermometer", "balance", "ruler", "strainer"],
+            answer: "thermometer",
+            explanation: "Thermometers measure temperature in degrees Celsius or Fahrenheit."
+          },
+          {
+            id: 'c14_v4',
+            question: "The energy of moving particles of matter is called ________.",
+            options: ["thermal energy", "pitch", "circuit", "crest"],
+            answer: "thermal energy",
+            explanation: "All moving particles within matter carry thermal energy."
+          },
+          {
+            id: 'c14_v5',
+            question: "The measure of the hotness or coldness of something is called ________.",
+            options: ["temperature", "volume", "length", "friction"],
+            answer: "temperature",
+            explanation: "Temperature tells us how hot or cold an object is."
+          },
+          {
+            id: 'c14_v6',
+            question: "To bend light is to ________.",
+            options: ["refract", "reflect", "condense", "evaporate"],
+            answer: "refract",
+            explanation: "Light refracts (bends) when entering water or clear glass."
+          },
+          {
+            id: 'c14_v7',
+            question: "The flow of thermal energy from warmer objects to cooler objects is called ________.",
+            options: ["heat", "light", "friction", "sound"],
+            answer: "heat",
+            explanation: "Heat transfers naturally from warmer items toward cooler items."
+          },
+          {
+            id: 'c14_v8',
+            question: "A form of energy that you can see is called ________.",
+            options: ["light", "potential energy", "mass", "substance"],
+            answer: "light",
+            explanation: "Light is the visible form of radiant energy."
+          },
+          {
+            id: 'c14_q9',
+            question: "9. A sweater looks blue if it ________.",
+            options: ["A. refracts blue light", "B. reflects blue light", "C. absorbs blue light", "D. reflects all light"],
+            answer: "B. reflects blue light",
+            explanation: "The blue sweater reflects blue light into our eyes and absorbs others."
+          },
+          {
+            id: 'c14_q10',
+            question: "10. When the thermal energy of an object increases, the particles in the object ________.",
+            options: ["A. stop moving", "B. start moving", "C. slow down", "D. speed up"],
+            answer: "D. speed up",
+            explanation: "Heating causes particles of matter to move faster and faster."
+          },
+          {
+            id: 'c14_q11',
+            question: "11. Degrees Fahrenheit and degrees Celsius are used to measure ________.",
+            options: ["A. length", "B. volume", "C. temperature", "D. friction"],
+            answer: "C. temperature",
+            explanation: "Degrees Fahrenheit and Celsius are units of temperature."
+          },
+          {
+            id: 'c14_q12',
+            question: "12. Your body stays warm because it makes thermal energy from the stored ________ energy in food.",
+            options: ["A. chemical", "B. light", "C. mechanical", "D. electrical"],
+            answer: "A. chemical",
+            explanation: "Our bodies digest chemical energy stored in food to maintain warmth."
+          }
+        ]
+      },
+      15: {
+        number: 15,
+        title: "Force and Motion",
+        subtitle: "Forces, Gravity, Work and The 6 Simple Machines",
+        spokenTitle: "Chapter fifteen: Force and Motion",
+        themeColor: "from-emerald-500 via-teal-500 to-cyan-600",
+        badgeBg: "bg-emerald-100 text-emerald-800 border-emerald-300",
+        btnClass: "duo-btn-green",
+        badge: "🛞🪓🏗️",
+        glossary: [
+          { term: "force", def: "A push or pull that can change the motion of an object.", icon: "🤜" },
+          { term: "gravity", def: "The force that pulls objects toward each other (such as down toward Earth).", icon: "🍎" },
+          { term: "motion", def: "A change in an object's position over time.", icon: "🚴" },
+          { term: "distance", def: "The measure of how far an object has traveled.", icon: "📏" },
+          { term: "speed", def: "How fast or slow an object is moving.", icon: "⏱️" },
+          { term: "direction", def: "The path that a moving object follows (north, right, curved).", icon: "🧭" },
+          { term: "work", def: "When you use a force to move an object over a distance.", icon: "📦" },
+          { term: "simple machine", def: "A device with few or no moving parts that makes work easier.", icon: "⚙️" },
+          { term: "lever", def: "A stiff bar that turns around a fixed point called a fulcrum.", icon: "🪓" },
+          { term: "pulley", def: "A simple machine made of a rope fitted around a fixed grooved wheel.", icon: "🏗️" },
+          { term: "wheel and axle", def: "A wheel attached to a smaller shaft that changes turning force.", icon: "🚗" },
+          { term: "inclined plane", def: "A slanted, flat surface used to raise or lower heavy loads.", icon: "🛹" },
+          { term: "wedge", def: "A simple machine made of two inclined planes back-to-back to split things.", icon: "🪚" },
+          { term: "screw", def: "An inclined plane wrapped spirally around a central column or cylinder.", icon: "🔩" }
+        ],
+        reviewQuiz: [
+          {
+            id: 'c15_v1',
+            question: "A simple machine made up of a rope fitted around a fixed wheel is a/an ________.",
+            options: ["pulley", "wedge", "lever", "screw"],
+            answer: "pulley",
+            explanation: "Pulleys use a grooved wheel and rope to lift heavy loads."
+          },
+          {
+            id: 'c15_v2',
+            question: "How fast or slow an object is moving is its ________.",
+            options: ["speed", "direction", "gravity", "mass"],
+            answer: "speed",
+            explanation: "Speed describes how quickly an object moves over time."
+          },
+          {
+            id: 'c15_v3',
+            question: "The measure of how far an object has traveled is ________.",
+            options: ["distance", "work", "force", "pulley"],
+            answer: "distance",
+            explanation: "Distance measures how far an object moved."
+          },
+          {
+            id: 'c15_v4',
+            question: "A simple machine made up of two inclined planes is a/an ________.",
+            options: ["wedge", "lever", "wheel and axle", "circuit"],
+            answer: "wedge",
+            explanation: "An ax blade, knife, or chisel is a wedge formed by two inclined planes back-to-back."
+          },
+          {
+            id: 'c15_v5',
+            question: "A device with few parts that makes work easier by changing the strength or direction of a force is a/an ________.",
+            options: ["simple machine", "chemical change", "solution", "alloy"],
+            answer: "simple machine",
+            explanation: "Simple machines make work easier by multiplying or redirecting applied force."
+          },
+          {
+            id: 'c15_v6',
+            question: "When you use a force to move an object, you do ________.",
+            options: ["work", "speed", "vibrate", "pitch"],
+            answer: "work",
+            explanation: "Work is done when a force moves an object across a distance."
+          },
+          {
+            id: 'c15_v7',
+            question: "A change in an object's position is called ________.",
+            options: ["motion", "crest", "friction", "volume"],
+            answer: "motion",
+            explanation: "Any change in location over time is motion."
+          },
+          {
+            id: 'c15_v8',
+            question: "The path a moving object follows is its ________.",
+            options: ["direction", "speed", "work", "wedge"],
+            answer: "direction",
+            explanation: "Direction is the course along which an object moves."
+          },
+          {
+            id: 'c15_v9',
+            question: "A simple machine that is a slanted surface is a/an ________.",
+            options: ["inclined plane", "wheel and axle", "screw", "balance"],
+            answer: "inclined plane",
+            explanation: "Ramps and slides are inclined planes."
+          },
+          {
+            id: 'c15_v10',
+            question: "An inclined plane wrapped around a column is a/an ________.",
+            options: ["screw", "lever", "pulley", "wedge"],
+            answer: "screw",
+            explanation: "A screw is an inclined plane wrapped spirally around a cylinder."
+          },
+          {
+            id: 'c15_q11',
+            question: "11. Gravity and friction are examples of ________.",
+            options: ["A. motions.", "B. simple machines.", "C. forces.", "D. distances."],
+            answer: "C. forces.",
+            explanation: "Both gravity and friction are fundamental pushes or pulls."
+          },
+          {
+            id: 'c15_q12',
+            question: "12. A simple machine made up of a stiff bar and a fixed point is a ________.",
+            options: ["A. wheel and axle.", "B. pulley.", "C. wedge.", "D. lever."],
+            answer: "D. lever.",
+            explanation: "A lever turns around a fixed pivot point called a fulcrum."
+          },
+          {
+            id: 'c15_q13',
+            question: "13. The force that pulls objects toward each other is ________.",
+            options: ["A. friction.", "B. gravity.", "C. magnetism.", "D. motion."],
+            answer: "B. gravity.",
+            explanation: "Earth's gravity pulls all objects toward its center."
+          },
+          {
+            id: 'c15_q14',
+            question: "14. A simple machine that changes a weak circular force to a strong circular force is a(n) ________.",
+            options: ["A. pulley.", "B. wheel and axle.", "C. screw.", "D. inclined plane."],
+            answer: "B. wheel and axle.",
+            explanation: "Doorknobs and screwdrivers use a wheel and axle to amplify turning force."
+          }
+        ]
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!state.studentName) {
+        showView('welcome');
+      } else {
+        updateStatsUI();
+        showView('map');
+      }
+    });
+
+    function showView(viewName, data = null) {
+      if (simAnimId) {
+        cancelAnimationFrame(simAnimId);
+        simAnimId = null;
+      }
+      state.view = viewName;
+      const app = document.getElementById('appContainer');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      switch(viewName) {
+        case 'welcome':
+          renderWelcomeView(app);
+          break;
+        case 'map':
+          renderChapterMapView(app);
+          break;
+        case 'lesson':
+          renderLessonExplanationView(app, data || state.currentChapterId);
+          break;
+        case 'glossary':
+          renderGlossaryView(app, data || state.currentChapterId);
+          break;
+        case 'quiz':
+          renderQuizView(app, data || state.currentChapterId, false);
+          break;
+        case 'retest':
+          renderQuizView(app, state.currentChapterId, true);
+          break;
+        case 'diploma':
+          renderDiplomaView(app, data || state.currentChapterId);
+          break;
+      }
+    }
+
+    function renderWelcomeView(container) {
+      updateMascotMessage("Hi! What is your name? Write it down to begin your adventure!");
+      speakEnglish("Welcome to Footprints! What is your name, young scientist?");
+
+      container.innerHTML = `
+        <div class="max-w-xl mx-auto my-auto bg-white rounded-3xl p-8 shadow-2xl border-4 border-amber-300 text-center animate-fade-in duo-card">
+          <div class="relative w-28 h-28 mx-auto mb-4">
+            <div class="w-28 h-28 bg-gradient-to-tr from-cyan-400 via-sky-500 to-indigo-500 rounded-3xl flex items-center justify-center text-6xl shadow-lg border-4 border-sky-300 animate-float">
+              ${state.equippedAvatar || '🧑‍🔬'}
+            </div>
+            <div class="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-2 rounded-full border-2 border-white shadow text-sm">
+              ✨
+            </div>
+          </div>
+
+          <h2 class="text-3xl md:text-4xl font-black text-slate-800 mb-2">Welcome to Footprints!</h2>
+          <p class="text-slate-600 font-extrabold text-base mb-6 leading-relaxed">
+            Interactive Science for 8-year-olds! Complete Chapters eleven to fifteen, explore animated labs, score <span class="text-emerald-600 font-black">eighty percent or more</span>, and win your official Diploma!
+          </p>
+
+          <div class="mb-6 text-left bg-amber-50/80 p-5 rounded-2xl border-2 border-amber-200">
+            <label class="block text-sm font-black text-amber-900 mb-2 flex items-center gap-2">
+              <span>✍️</span> Student Full Name (for your Diploma):
+            </label>
+            <input id="nameInput" type="text" placeholder="Type your full name here..." 
+              value="${state.studentName || ''}"
+              class="w-full text-xl font-black px-5 py-4 rounded-2xl border-4 border-amber-300 focus:outline-none focus:border-emerald-500 bg-white text-slate-800 placeholder-slate-400 shadow-inner">
+          </div>
+
+          <button onclick="handleStartJourney()" class="duo-btn-green w-full py-4 px-6 text-white font-black text-xl rounded-2xl uppercase tracking-wider flex items-center justify-center gap-3">
+            <span>🚀 Start My Adventure</span>
+          </button>
+        </div>
+      `;
+    }
+
+    function handleStartJourney() {
+      const input = document.getElementById('nameInput');
+      const name = input ? input.value.trim() : '';
+      if (!name) {
+        playTone('error');
+        showFeedbackModal(false, "Name Required", "Please write your name to start and earn your diploma!", null);
+        return;
+      }
+      state.studentName = name;
+      playTone('candy');
+      updateStatsUI();
+      speakEnglish(`Great to meet you, ${name}! Let us pick a chapter!`);
+      showView('map');
+    }
+
+    function renderChapterMapView(container) {
+      updateMascotMessage("Choose a chapter from eleven to fifteen to continue your science journey!");
+      speakEnglish("Choose a chapter from eleven to fifteen to begin!");
+
+      let chaptersHtml = '';
+
+      [11, 12, 13, 14, 15].forEach(num => {
+        const ch = chaptersData[num];
+        const isCompleted = state.completedChapters[num] && state.completedChapters[num].score >= 80;
+        const lastScore = state.completedChapters[num] ? state.completedChapters[num].score : null;
+
+        chaptersHtml += `
+          <div class="duo-card relative bg-white rounded-3xl p-6 border-4 border-slate-200 hover:border-emerald-400 shadow-md flex flex-col justify-between overflow-hidden">
+            <!-- Top chapter pill -->
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr ${ch.themeColor} text-white flex items-center justify-center text-3xl font-black shadow-md border-2 border-white">
+                  ${num}
+                </div>
+                <div>
+                  <span class="text-xs font-black uppercase text-emerald-600 tracking-wider">Unit Chapter</span>
+                  <h3 class="text-2xl font-black text-slate-800 leading-tight">${ch.title}</h3>
+                </div>
+              </div>
+              <span class="text-3xl">${ch.badge}</span>
+            </div>
+
+            <p class="text-slate-600 text-sm font-bold mb-6 flex-grow leading-relaxed">${ch.subtitle}</p>
+
+            ${lastScore !== null ? `
+              <div class="mb-4 bg-slate-50 border-2 ${lastScore >= 80 ? 'border-emerald-300 text-emerald-700 bg-emerald-50' : 'border-amber-300 text-amber-700 bg-amber-50'} rounded-2xl p-3 flex items-center justify-between text-sm font-black shadow-sm">
+                <span>Quiz Score:</span>
+                <span>${lastScore}% ${lastScore >= 80 ? '🏆 PASSED' : '⚠️ Practice Needed'}</span>
+              </div>
+            ` : ''}
+
+            <!-- 3 Functional Action Buttons -->
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="startChapterLesson(${num})" class="duo-btn-blue py-3 px-2 text-white rounded-2xl font-black text-xs flex flex-col items-center gap-1 shadow-sm">
+                <span class="text-lg">📖</span>
+                <span>Lesson</span>
+              </button>
+              <button onclick="openChapterGlossary(${num})" class="duo-btn-purple py-3 px-2 text-white rounded-2xl font-black text-xs flex flex-col items-center gap-1 shadow-sm">
+                <span class="text-lg">📚</span>
+                <span>Glossary</span>
+              </button>
+              <button onclick="startChapterQuiz(${num})" class="duo-btn-green py-3 px-2 text-white rounded-2xl font-black text-xs flex flex-col items-center gap-1 shadow-sm">
+                <span class="text-lg">${isCompleted ? '⭐' : '📝'}</span>
+                <span>Review</span>
+              </button>
+            </div>
+
+            ${isCompleted ? `
+              <button onclick="showView('diploma', ${num})" class="mt-3 py-2.5 bg-amber-100 border-2 border-amber-400 text-amber-900 rounded-2xl font-black text-xs flex items-center justify-center gap-2 hover:bg-amber-200 transition shadow-sm animate-glow">
+                <span>🎓 View Official Diploma</span>
+              </button>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      container.innerHTML = `
+        <div class="flex flex-col gap-6">
+          <!-- Top Banner Hero -->
+          <div class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white rounded-3xl p-6 md:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+            <div class="relative z-10 flex-1">
+              <span class="bg-white/20 text-white text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider border border-white/30">
+                Footprints Science Adventure
+              </span>
+              <h2 class="text-3xl md:text-4xl font-black mt-3 mb-2 tracking-tight">Chapters eleven to fifteen Learning Quest</h2>
+              <p class="text-emerald-50 font-extrabold max-w-xl text-base leading-relaxed">
+                Explore interactive science simulations, master vocabulary glossaries, and pass each chapter review with eighty percent or more to earn your personalized diploma!
+              </p>
+            </div>
+            <div class="relative z-10 flex items-center gap-4 bg-white/15 backdrop-blur-md p-5 rounded-3xl border-2 border-white/30 shadow-lg">
+              <div class="text-5xl animate-bounce">🍬</div>
+              <div>
+                <p class="text-xs uppercase font-black text-amber-200 tracking-wider">Treats Earned</p>
+                <p class="text-3xl font-black">${state.candies} Candies</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chapters Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${chaptersHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function startChapterLesson(num) {
+      state.currentChapterId = num;
+      playTone('success');
+      showView('lesson', num);
+    }
+
+    let checkedGlossaryTerms = new Set();
+    let glossaryAutoAdvanceTimer = null;
+
+    function openChapterGlossary(num) {
+      state.currentChapterId = num;
+      checkedGlossaryTerms = new Set();
+      if (glossaryAutoAdvanceTimer) {
+        clearTimeout(glossaryAutoAdvanceTimer);
+        glossaryAutoAdvanceTimer = null;
+      }
+      playTone('candy');
+      showView('glossary', num);
+    }
+
+    function startChapterQuiz(num) {
+      state.currentChapterId = num;
+      playTone('success');
+      showView('quiz', num);
+    }
+
+    function renderLessonExplanationView(container, chNum) {
+      const ch = chaptersData[chNum];
+      const missed = getMissedTerms();
+      const hasMissed = missed.size > 0;
+
+      if (hasMissed) {
+        updateMascotMessage(`Pay more attention to these parts! The concepts you missed are highlighted in bright yellow so you can review them!`);
+        speakEnglish(`Pay more attention to these parts! The lesson concepts you missed are highlighted in bright yellow.`);
+      } else {
+        updateMascotMessage(`Learning Chapter ${chNum}: ${ch.title}! Tap on any of the bottom concept cards to watch live animations and listen!`);
+        speakEnglish(`${ch.spokenTitle}. Let us explore through interactive experiments! Tap any concept card below to watch live animations!`);
+      }
+
+      container.innerHTML = `
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-emerald-300 max-w-4xl mx-auto w-full">
+          <!-- Lesson Top Navigation -->
+          <div class="flex items-center justify-between border-b-2 border-slate-100 pb-4 mb-4">
+            <button onclick="showView('map')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-black text-sm flex items-center gap-2 border border-slate-300 transition">
+              <span>⬅️ Map</span>
+            </button>
+            <div class="text-center">
+              <span class="text-xs font-black uppercase text-emerald-600 tracking-wider">Interactive Science Lab</span>
+              <h2 class="text-2xl md:text-3xl font-black text-slate-800">Chapter ${chNum}: ${ch.title}</h2>
+            </div>
+            <button onclick="speakCurrentLesson(${chNum})" class="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-2xl font-black text-sm flex items-center gap-2 border-2 border-indigo-200 transition">
+              <span>🔊 Listen</span>
+            </button>
+          </div>
+
+          ${hasMissed ? `
+            <div class="bg-amber-100 border-3 border-amber-400 rounded-2xl p-4 mb-6 flex items-center gap-3 shadow-md animate-pulse">
+              <span class="text-3xl">⚠️</span>
+              <div>
+                <h4 class="font-black text-amber-950 text-sm md:text-base">Pay more attention to these parts!</h4>
+                <p class="text-xs md:text-sm font-bold text-amber-900 leading-snug">
+                  The concepts you previously missed are marked in <span class="bg-yellow-300 px-2 py-0.5 rounded-md font-black text-amber-950 border border-amber-400">bright yellow</span>. Tap them to watch the animations!
+                </p>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Dynamic simulation area -->
+          <div id="lessonSimulationArea" class="mb-8">
+            ${getLessonInteractiveMarkup(chNum)}
+          </div>
+
+          <!-- Navigation footer -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-between border-t-2 border-slate-100 pt-6">
+            <button onclick="showView('glossary', ${chNum})" class="duo-btn-purple py-3.5 px-6 text-white rounded-2xl font-black text-base flex items-center justify-center gap-2">
+              <span>📚 Open Chapter ${chNum} Glossary</span>
+            </button>
+            <button onclick="showView('quiz', ${chNum})" class="duo-btn-green py-3.5 px-8 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-2">
+              <span>🚀 Take Chapter ${chNum} Review Quiz</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      applyLessonYellowHighlights();
+      initLessonSimulation(chNum);
+    }
+
+    function applyLessonYellowHighlights() {
+      const missed = getMissedTerms();
+      if (missed.size === 0) return;
+
+      const cardMappings = [
+        { term: 'physical change', selector: "[onclick*='physical_change']", label: 'Physical Change' },
+        { term: 'chemical change', selector: "[onclick*='chemical_change']", label: 'Chemical Change' },
+        { term: 'strainer', selector: "[onclick*='strainer_filter']", label: 'Strainer & Filter' },
+        { term: 'filter', selector: "[onclick*='strainer_filter']", label: 'Strainer & Filter' },
+        { term: 'solution', selector: "[onclick*='solution_alloy']", label: 'Solution & Alloy' },
+        { term: 'alloy', selector: "[onclick*='solution_alloy']", label: 'Solution & Alloy' },
+        { term: 'dissolve', selector: "[onclick*='solution_alloy']", label: 'Solution & Alloy' },
+        { term: 'kinetic energy', selector: "[onclick*='kinetic_energy']", label: 'Kinetic Energy' },
+        { term: 'potential energy', selector: "[onclick*='potential_energy']", label: 'Potential Energy' },
+        { term: 'electric circuit', selector: "[onclick*='electric_circuit']", label: 'Electric Circuit' },
+        { term: 'electric current', selector: "[onclick*='electric_circuit']", label: 'Electric Current' },
+        { term: 'heat', selector: "[onclick*='heat_temperature']", label: 'Heat & Temperature' },
+        { term: 'temperature', selector: "[onclick*='heat_temperature']", label: 'Heat & Temperature' },
+        { term: 'thermal energy', selector: "[onclick*='heat_temperature']", label: 'Thermal Energy' },
+        { term: 'friction', selector: "[onclick*='friction_color']", label: 'Friction & Color' },
+        { term: 'color', selector: "[onclick*='friction_color']", label: 'Color Reflection' },
+        { term: 'reflect', selector: "[onclick*='friction_color']", label: 'Reflection' },
+        { term: 'force', selector: "[onclick*='force_work']", label: 'Force & Work' },
+        { term: 'work', selector: "[onclick*='force_work']", label: 'Force & Work' },
+        { term: 'gravity', selector: "[onclick*='gravity_friction']", label: 'Gravity & Friction' }
+      ];
+
+      cardMappings.forEach(mapping => {
+        if (missed.has(mapping.term)) {
+          const card = document.querySelector(mapping.selector);
+          if (card) {
+            card.classList.remove('bg-emerald-50', 'bg-amber-50', 'bg-teal-50', 'bg-indigo-50', 'bg-blue-50', 'bg-orange-50', 'bg-purple-50', 'bg-sky-50');
+            card.classList.add('bg-yellow-200/90', 'border-4', 'border-amber-400', 'ring-4', 'ring-yellow-300', 'shadow-xl');
+            
+            // Inject distinct attention badge if not already added
+            if (!card.querySelector('.focus-attention-tag')) {
+              const badge = document.createElement('div');
+              badge.className = 'focus-attention-tag bg-amber-400 text-amber-950 font-black text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-2 flex items-center gap-1.5 w-fit shadow border border-amber-500';
+              badge.innerHTML = `<span>⚠️</span> <span>Pay more attention to this part!</span>`;
+              card.prepend(badge);
+            }
+          }
+        }
+      });
+    }
+
+    function speakCurrentLesson(chNum) {
+      if (chNum === 11) {
+        speakEnglish("Chapter eleven: Matter Changes. Matter has mass and volume. Watch how adding heat melts solid ice into liquid water, and boiling turns water into steam gas! In physical changes, no new matter forms. In chemical changes, such as burning wood or rusting iron, a brand new kind of matter is formed!");
+      } else if (chNum === 12) {
+        speakEnglish("Chapter twelve: Mixtures. A mixture is made of two or more substances combined physically. The parts keep their original properties. A strainer or filter separates pieces by size. A magnet pulls magnetic steel. Evaporating water leaves pure salt crystals. In solutions, parts dissolve completely and cannot be seen!");
+      } else if (chNum === 13) {
+        speakEnglish("Chapter thirteen: Forms of Energy. Kinetic energy is the energy of motion. Potential energy is stored energy. Sound is produced by vibrating matter and travels in waves. The top of a wave is a crest and the bottom is a trough. High frequency means high pitch. Electric current flows through a closed circuit!");
+      } else if (chNum === 14) {
+        speakEnglish("Chapter fourteen: Heat, Temperature, and Light. Thermal energy is the energy of moving particles. Friction produces heat. Light travels in straight lines. When light bounces off a mirror, it reflects. When light passes into water, it refracts and bends!");
+      } else if (chNum === 15) {
+        speakEnglish("Chapter fifteen: Force and Motion. Work happens when a force moves an object across a distance. Gravity pulls objects down toward Earth. The six simple machines make work easier: lever, pulley, wheel and axle, inclined plane, wedge, and screw!");
+      }
+    }
+
+    function getLessonInteractiveMarkup(chNum) {
+      if (chNum === 11) {
+        return `
+          <div class="space-y-6">
+            <div class="bg-blue-50/70 border-3 border-blue-300 p-6 rounded-3xl shadow-sm">
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-2 mb-3">
+                <h4 class="text-xl font-black text-blue-900 flex items-center gap-2">
+                  <span>🌡️</span> Beaker Thermal Lab & Particle Simulator
+                </h4>
+                <!-- Quick jump buttons -->
+                <div class="flex items-center gap-2">
+                  <button onclick="setMatterTemp(0)" class="px-3 py-1 bg-cyan-100 hover:bg-cyan-200 text-cyan-800 rounded-xl text-xs font-black border border-cyan-300">
+                    🧊 Freeze (0°C)
+                  </button>
+                  <button onclick="setMatterTemp(25)" class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-xl text-xs font-black border border-blue-300">
+                    💧 Melt (25°C)
+                  </button>
+                  <button onclick="setMatterTemp(110)" class="px-3 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-xl text-xs font-black border border-rose-300">
+                    🔥 Boil (110°C)
+                  </button>
+                </div>
+              </div>
+              <p class="text-xs md:text-sm text-slate-600 font-bold mb-4">
+                Drag the temperature slider or tap the buttons to heat and cool matter. Notice how particle motion changes from <b>Solid (Ice)</b> to <b>Liquid (Water)</b> to <b>Gas (Steam)</b>!
+              </p>
+              
+              <div class="lab-canvas-container p-5 rounded-3xl flex flex-col items-center">
+                <canvas id="matterSimCanvas" width="560" height="240" class="w-full max-w-lg rounded-2xl"></canvas>
+                <div class="w-full max-w-md mt-4 flex items-center gap-4">
+                  <span class="text-xs font-black text-cyan-300">❄️ Freeze 0°C</span>
+                  <input id="matterTempSlider" type="range" min="0" max="120" value="25" class="w-full h-3 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+                  <span class="text-xs font-black text-rose-400">🔥 Boil 120°C</span>
+                </div>
+                <div class="mt-3 text-center">
+                  <span id="matterStateBadge" class="px-5 py-2 rounded-full text-sm font-black bg-cyan-500 text-white shadow-md">
+                    State: Liquid Water (25°C)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Physical Change Interactive Card -->
+              <div onclick="openConceptDemo('physical_change')" 
+                class="duo-card cursor-pointer p-5 bg-emerald-50 border-3 border-emerald-300 hover:border-emerald-500 rounded-3xl shadow-sm hover:shadow-lg transition-all group relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <h5 class="font-black text-emerald-800 text-lg flex items-center gap-2 group-hover:scale-105 transition-transform">
+                    <span>✂️</span> Physical Change
+                  </h5>
+                  <span class="bg-emerald-200 text-emerald-900 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                    <span>✨ Tap to Explore</span> <span>🔊</span>
+                  </span>
+                </div>
+                <p class="text-xs text-slate-700 font-bold mt-2.5 leading-relaxed">
+                  Changes size, shape or state, but <b>NO new matter</b> is made! (Examples: Cutting paper, folding a paper airplane, melting ice, dissolving sugar).
+                </p>
+                <div class="mt-3 flex items-center gap-2 text-xs font-black text-emerald-700">
+                  <span>👉 Watch live scissors and melting animation</span>
+                </div>
+              </div>
+
+              <!-- Chemical Change Interactive Card -->
+              <div onclick="openConceptDemo('chemical_change')" 
+                class="duo-card cursor-pointer p-5 bg-amber-50 border-3 border-amber-300 hover:border-amber-500 rounded-3xl shadow-sm hover:shadow-lg transition-all group relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <h5 class="font-black text-amber-800 text-lg flex items-center gap-2 group-hover:scale-105 transition-transform">
+                    <span>🔥</span> Chemical Change
+                  </h5>
+                  <span class="bg-amber-200 text-amber-900 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                    <span>✨ Tap to Explore</span> <span>🔊</span>
+                  </span>
+                </div>
+                <p class="text-xs text-slate-700 font-bold mt-2.5 leading-relaxed">
+                  A <b>brand new kind of matter</b> forms with different properties! (Examples: Burning wood into ash, rusting a nail, cooking pancakes).
+                </p>
+                <div class="mt-3 flex items-center gap-2 text-xs font-black text-amber-700">
+                  <span>👉 Watch burning match & rusty nail animation</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (chNum === 12) {
+        return `
+          <div class="space-y-6">
+            <div class="bg-amber-50/70 border-3 border-amber-300 p-6 rounded-3xl shadow-sm">
+              <h4 class="text-xl font-black text-amber-900 mb-2 flex items-center gap-2">
+                <span>🥣</span> Animated Mixture Separation Laboratory
+              </h4>
+              <p class="text-xs md:text-sm text-slate-600 font-bold mb-4">
+                Click any mixture below to watch the physical separation animation happen live on the lab canvas!
+              </p>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                <button onclick="setMixtureSeparationMode('strainer')" id="btnSepStrainer" class="duo-btn-amber p-3.5 text-white rounded-2xl font-black text-xs shadow-md">
+                  🏖️ Strainer (Sand & Shells)
+                </button>
+                <button onclick="setMixtureSeparationMode('magnet')" id="btnSepMagnet" class="p-3.5 bg-white rounded-2xl border-2 border-amber-300 font-black text-xs text-slate-800 hover:bg-amber-100 transition shadow-sm">
+                  🧲 Magnet (Tacks & Erasers)
+                </button>
+                <button onclick="setMixtureSeparationMode('evaporation')" id="btnSepEvap" class="p-3.5 bg-white rounded-2xl border-2 border-amber-300 font-black text-xs text-slate-800 hover:bg-amber-100 transition shadow-sm">
+                  🌊 Evaporation (Salt Water)
+                </button>
+              </div>
+
+              <div class="lab-canvas-container p-5 rounded-3xl flex flex-col items-center">
+                <canvas id="mixtureCanvas" width="560" height="230" class="w-full max-w-lg rounded-2xl"></canvas>
+                <p id="mixtureExplanationText" class="mt-3 text-xs md:text-sm font-black text-amber-200 text-center">
+                  Strainer separates substances by particle size! Shells stay on top, sand falls through!
+                </p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div onclick="openConceptDemo('strainer_filter')" class="duo-card cursor-pointer p-5 bg-teal-50 border-3 border-teal-300 hover:border-teal-500 rounded-3xl shadow-sm transition-all">
+                <div class="flex items-center justify-between">
+                  <h5 class="font-black text-teal-800 text-base">☕ Strainers & Filters</h5>
+                  <span class="text-xs bg-teal-200 text-teal-900 font-black px-2.5 py-0.5 rounded-full">Tap & Listen 🔊</span>
+                </div>
+                <p class="text-xs text-slate-700 font-bold mt-2">Traps larger solid pieces while letting liquids or smaller parts pass through.</p>
+              </div>
+              <div onclick="openConceptDemo('solution_alloy')" class="duo-card cursor-pointer p-5 bg-indigo-50 border-3 border-indigo-300 hover:border-indigo-500 rounded-3xl shadow-sm transition-all">
+                <div class="flex items-center justify-between">
+                  <h5 class="font-black text-indigo-800 text-base">🎺 Solutions & Alloys</h5>
+                  <span class="text-xs bg-indigo-200 text-indigo-900 font-black px-2.5 py-0.5 rounded-full">Tap & Listen 🔊</span>
+                </div>
+                <p class="text-xs text-slate-700 font-bold mt-2">In a solution, substances dissolve evenly so parts cannot be seen. An alloy is a solid solution made with metal (like brass or steel).</p>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (chNum === 13) {
+        return `
+          <div class="space-y-6">
+            <div class="bg-yellow-50/70 border-3 border-yellow-300 p-6 rounded-3xl shadow-sm">
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-3">
+                <h4 class="text-xl font-black text-yellow-900 flex items-center gap-2">
+                  <span>〰️</span> Wave Dynamics & Electric Circuit Studio
+                </h4>
+                <div class="flex items-center gap-2">
+                  <button onclick="setEnergyLabMode('wave')" id="btnLabWave" class="duo-btn-amber px-4 py-1.5 text-white rounded-xl text-xs font-black shadow">
+                    〰️ Sound & Water Waves
+                  </button>
+                  <button onclick="setEnergyLabMode('circuit')" id="btnLabCircuit" class="px-4 py-1.5 bg-white text-slate-700 border-2 border-yellow-300 rounded-xl text-xs font-black hover:bg-yellow-100 transition shadow">
+                    💡 Electric Circuit
+                  </button>
+                </div>
+              </div>
+              
+              <div class="lab-canvas-container p-5 rounded-3xl flex flex-col items-center">
+                <canvas id="energyCanvas" width="560" height="230" class="w-full max-w-lg rounded-2xl"></canvas>
+                
+                <div id="waveControlsBox" class="w-full max-w-md mt-4 flex items-center gap-4">
+                  <span class="text-xs font-black text-yellow-400">Low Frequency (Low Pitch)</span>
+                  <input id="waveFreqSlider" type="range" min="1" max="6" value="2" class="w-full h-3 bg-yellow-200 rounded-lg appearance-none cursor-pointer accent-yellow-400">
+                  <span class="text-xs font-black text-orange-400">High Frequency (High Pitch)</span>
+                </div>
+
+                <div id="circuitControlsBox" class="w-full max-w-md mt-4 flex items-center justify-center gap-4 hidden">
+                  <button onclick="toggleCircuitSwitch()" id="btnCircuitSwitch" class="duo-btn-green px-6 py-2.5 text-white rounded-2xl font-black text-xs">
+                    ⚡ Toggle Switch: CLOSED (Current Flows!)
+                  </button>
+                </div>
+
+                <p id="energyExplanationText" class="mt-3 text-xs md:text-sm font-black text-yellow-200 text-center">
+                  Watch the sailboat bob up and down! Waves carry energy from place to place without pushing water sideways!
+                </p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div onclick="openConceptDemo('kinetic_energy')" class="duo-card cursor-pointer p-4 bg-amber-50 border-3 border-amber-300 hover:border-amber-500 rounded-2xl text-center transition-all">
+                <span class="text-3xl">🏃</span>
+                <h6 class="font-black text-amber-900 text-sm mt-1">Kinetic Energy</h6>
+                <p class="text-xs text-slate-600 font-bold">Energy an object has because of motion! 🔊</p>
+              </div>
+              <div onclick="openConceptDemo('potential_energy')" class="duo-card cursor-pointer p-4 bg-blue-50 border-3 border-blue-300 hover:border-blue-500 rounded-2xl text-center transition-all">
+                <span class="text-3xl">🔋</span>
+                <h6 class="font-black text-blue-900 text-sm mt-1">Potential Energy</h6>
+                <p class="text-xs text-slate-600 font-bold">Energy stored due to position or chemical food! 🔊</p>
+              </div>
+              <div onclick="openConceptDemo('electric_circuit')" class="duo-card cursor-pointer p-4 bg-emerald-50 border-3 border-emerald-300 hover:border-emerald-500 rounded-2xl text-center transition-all">
+                <span class="text-3xl">💡</span>
+                <h6 class="font-black text-emerald-900 text-sm mt-1">Electric Circuit</h6>
+                <p class="text-xs text-slate-600 font-bold">Closed loop path that electric current flows through! 🔊</p>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (chNum === 14) {
+        return `
+          <div class="space-y-6">
+            <div class="bg-rose-50/70 border-3 border-rose-300 p-6 rounded-3xl shadow-sm">
+              <h4 class="text-xl font-black text-rose-900 mb-2 flex items-center gap-2">
+                <span>🔦</span> Interactive Light Optics & Friction Studio
+              </h4>
+              <p class="text-xs md:text-sm text-slate-600 font-bold mb-4">
+                Toggle between light <b>Reflection</b> (bouncing off a flat mirror) and <b>Refraction</b> (bending as light enters water)!
+              </p>
+
+              <div class="flex justify-center gap-4 mb-4">
+                <button onclick="setLightMode('reflect')" id="btnReflect" class="duo-btn-purple px-5 py-2.5 text-white rounded-2xl font-black text-xs">
+                  🪞 Reflection (Bounce Off)
+                </button>
+                <button onclick="setLightMode('refract')" id="btnRefract" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-2xl font-black text-xs hover:bg-slate-300 transition">
+                  🥛 Refraction (Bend in Water)
+                </button>
+              </div>
+
+              <div class="lab-canvas-container p-5 rounded-3xl flex flex-col items-center">
+                <canvas id="lightCanvas" width="560" height="230" class="w-full max-w-lg rounded-2xl"></canvas>
+                <div class="w-full max-w-md mt-4 flex items-center gap-3">
+                  <span class="text-xs font-black text-cyan-300">Beam Angle:</span>
+                  <input id="lightAngleSlider" type="range" min="20" max="70" value="45" class="w-full h-3 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-400">
+                </div>
+                <p id="lightExplanationText" class="mt-3 text-xs md:text-sm font-black text-cyan-200 text-center">
+                  When light hits a smooth mirror, it bounces off in straight rays: this is REFLECTION!
+                </p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div onclick="openConceptDemo('heat_temperature')" class="duo-card cursor-pointer p-5 bg-orange-50 border-3 border-orange-300 hover:border-orange-500 rounded-3xl shadow-sm transition-all">
+                <div class="flex items-center justify-between">
+                  <h5 class="font-black text-orange-900">🌡️ Heat and Temperature</h5>
+                  <span class="text-xs bg-orange-200 text-orange-900 font-black px-2.5 py-0.5 rounded-full">Tap & Listen 🔊</span>
+                </div>
+                <p class="text-xs text-slate-700 font-bold mt-2">Heat is thermal energy flowing from warmer to cooler objects. A thermometer measures temperature degrees in Celsius or Fahrenheit.</p>
+              </div>
+              <div onclick="openConceptDemo('friction_color')" class="duo-card cursor-pointer p-5 bg-purple-50 border-3 border-purple-300 hover:border-purple-500 rounded-3xl shadow-sm transition-all">
+                <div class="flex items-center justify-between">
+                  <h5 class="font-black text-purple-900">🧤 Friction and Color</h5>
+                  <span class="text-xs bg-purple-200 text-purple-900 font-black px-2.5 py-0.5 rounded-full">Tap & Listen 🔊</span>
+                </div>
+                <p class="text-xs text-slate-700 font-bold mt-2">Friction occurs when surfaces touch, creating thermal warmth. A blue shirt looks blue because it reflects blue light into our eyes!</p>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (chNum === 15) {
+        return `
+          <div class="space-y-6">
+            <div class="bg-teal-50/70 border-3 border-teal-300 p-6 rounded-3xl shadow-sm">
+              <h4 class="text-xl font-black text-teal-900 mb-2 flex items-center gap-2">
+                <span>⚙️</span> The 6 Simple Machines Live Simulation
+              </h4>
+              <p class="text-xs md:text-sm text-slate-600 font-bold mb-4">
+                Click any machine button to see how it moves and how it multiplies force to make work easier!
+              </p>
+
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-4">
+                <button onclick="setMachineVisual('lever')" id="mBtn_lever" class="duo-btn-green p-3 text-white rounded-2xl font-black text-xs shadow-md">
+                  🪓 Lever
+                </button>
+                <button onclick="setMachineVisual('pulley')" id="mBtn_pulley" class="p-3 bg-white border-2 border-teal-300 rounded-2xl font-black text-xs text-teal-900 hover:bg-teal-100 transition shadow-sm">
+                  🏗️ Pulley
+                </button>
+                <button onclick="setMachineVisual('wheel')" id="mBtn_wheel" class="p-3 bg-white border-2 border-teal-300 rounded-2xl font-black text-xs text-teal-900 hover:bg-teal-100 transition shadow-sm">
+                  🚗 Wheel and Axle
+                </button>
+                <button onclick="setMachineVisual('plane')" id="mBtn_plane" class="p-3 bg-white border-2 border-teal-300 rounded-2xl font-black text-xs text-teal-900 hover:bg-teal-100 transition shadow-sm">
+                  🛹 Inclined Plane
+                </button>
+                <button onclick="setMachineVisual('wedge')" id="mBtn_wedge" class="p-3 bg-white border-2 border-teal-300 rounded-2xl font-black text-xs text-teal-900 hover:bg-teal-100 transition shadow-sm">
+                  🪚 Wedge
+                </button>
+                <button onclick="setMachineVisual('screw')" id="mBtn_screw" class="p-3 bg-white border-2 border-teal-300 rounded-2xl font-black text-xs text-teal-900 hover:bg-teal-100 transition shadow-sm">
+                  🔩 Screw
+                </button>
+              </div>
+
+              <div class="lab-canvas-container p-5 rounded-3xl flex flex-col items-center">
+                <canvas id="machineCanvas" width="560" height="230" class="w-full max-w-lg rounded-2xl"></canvas>
+                <div id="machineDescriptionBox" class="mt-3 text-center text-xs md:text-sm font-black text-teal-200 leading-relaxed">
+                  Lever: A stiff bar turning on a fulcrum point! Pushing down on one end lifts a heavy load on the other!
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div onclick="openConceptDemo('force_work')" class="duo-card cursor-pointer p-5 bg-emerald-50 border-3 border-emerald-300 hover:border-emerald-500 rounded-3xl shadow-sm transition-all">
+                <div class="flex items-center justify-between">
+                  <h5 class="font-black text-emerald-800">💪 Force and Work</h5>
+                  <span class="text-xs bg-emerald-200 text-emerald-900 font-black px-2.5 py-0.5 rounded-full">Tap & Listen 🔊</span>
+                </div>
+                <p class="text-xs text-slate-700 font-bold mt-2">A force is a push or pull. Work is done only when a force moves an object across a distance.</p>
+              </div>
+              <div onclick="openConceptDemo('gravity_friction')" class="duo-card cursor-pointer p-5 bg-sky-50 border-3 border-sky-300 hover:border-sky-500 rounded-3xl shadow-sm transition-all">
+                <div class="flex items-center justify-between">
+                  <h5 class="font-black text-sky-800">🍎 Gravity and Friction</h5>
+                  <span class="text-xs bg-sky-200 text-sky-900 font-black px-2.5 py-0.5 rounded-full">Tap & Listen 🔊</span>
+                </div>
+                <p class="text-xs text-slate-700 font-bold mt-2">Gravity pulls objects toward Earth. Friction opposes motion between two touching surfaces.</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    let simAnimId = null;
+    let conceptAnimId = null;
+    let activeConceptKey = null;
+    let ch12Mode = 'strainer';
+    let ch13Mode = 'wave';
+    let isCircuitClosed = true;
+    let ch14Mode = 'reflect';
+    let ch15Machine = 'lever';
+
+    function setMatterTemp(val) {
+      const slider = document.getElementById('matterTempSlider');
+      if (slider) {
+        slider.value = val;
+        slider.dispatchEvent(new Event('input'));
+      }
+    }
+
+    function initLessonSimulation(chNum) {
+      if (simAnimId) {
+        cancelAnimationFrame(simAnimId);
+        simAnimId = null;
+      }
+
+      /* CHAPTER 11 SIMULATION */
+      if (chNum === 11) {
+        const canvas = document.getElementById('matterSimCanvas');
+        const slider = document.getElementById('matterTempSlider');
+        const badge = document.getElementById('matterStateBadge');
+        if (!canvas || !slider) return;
+        const ctx = canvas.getContext('2d');
+
+        const particles = [];
+        for (let i = 0; i < 48; i++) {
+          particles.push({
+            x: 140 + (i % 8) * 36,
+            y: 90 + Math.floor(i / 8) * 22,
+            vx: (Math.random() - 0.5) * 2.5,
+            vy: (Math.random() - 0.5) * 2.5
+          });
+        }
+
+        slider.oninput = () => {
+          const temp = parseInt(slider.value);
+          if (temp < 10) speakEnglish("Freezing! Liquid water turns into solid ice crystals!");
+          else if (temp > 95) speakEnglish("Boiling! Liquid water turns into steam gas!");
+        };
+
+        function drawMatter() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          const temp = parseInt(slider.value);
+          let stateName = "Liquid Water";
+          let color = "#38bdf8";
+
+          // Draw beaker outline
+          ctx.strokeStyle = "#94a3b8";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(110, 40);
+          ctx.lineTo(110, 200);
+          ctx.lineTo(450, 200);
+          ctx.lineTo(450, 40);
+          ctx.stroke();
+
+          // Draw beaker graduation lines
+          ctx.strokeStyle = "rgba(148, 163, 184, 0.4)";
+          ctx.lineWidth = 2;
+          for (let y = 70; y <= 180; y += 35) {
+            ctx.beginPath();
+            ctx.moveTo(110, y);
+            ctx.lineTo(140, y);
+            ctx.stroke();
+          }
+
+          // Burner Flame if temp > 40
+          if (temp > 40) {
+            const flameIntensity = (temp - 40) / 80;
+            ctx.fillStyle = temp > 95 ? "#ef4444" : "#f59e0b";
+            for (let f = 0; f < 5; f++) {
+              ctx.beginPath();
+              const fx = 180 + f * 50;
+              const flameRadius = Math.max(1.5, 4 + 8 * flameIntensity + Math.sin(Date.now() * 0.02 + f) * 3);
+              ctx.arc(fx, 220, flameRadius, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+
+          if (temp < 10) {
+            stateName = "Solid Ice (Rigid vibrating lattice)";
+            color = "#a5f3fc";
+          } else if (temp > 95) {
+            stateName = "Gas / Steam (Fast moving & expanding)";
+            color = "#fb7185";
+          }
+
+          if (badge) badge.textContent = `State: ${stateName} (${temp}°C)`;
+
+          // Draw and animate particles
+          particles.forEach((p, idx) => {
+            if (temp < 10) {
+              const fx = 150 + (idx % 8) * 34;
+              const fy = 80 + Math.floor(idx / 8) * 20;
+              p.x = fx + (Math.random() - 0.5) * 2;
+              p.y = fy + (Math.random() - 0.5) * 2;
+            } else if (temp > 95) {
+              p.x += p.vx * 3.6;
+              p.y += p.vy * 3.6;
+              if (p.x < 125 || p.x > 435) p.vx *= -1;
+              if (p.y < 20 || p.y > 190) p.vy *= -1;
+            } else {
+              p.x += p.vx * 1.2;
+              p.y += p.vy * 1.2;
+              if (p.x < 130 || p.x > 430) p.vx *= -1;
+              if (p.y < 95 || p.y > 190) p.vy *= -1;
+            }
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, temp > 95 ? 6 : 8, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 6;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = "#ffffff";
+            ctx.stroke();
+          });
+
+          simAnimId = requestAnimationFrame(drawMatter);
+        }
+        drawMatter();
+
+      /* CHAPTER 12 SIMULATION */
+      } else if (chNum === 12) {
+        initMixtureCanvas();
+
+      /* CHAPTER 13 SIMULATION */
+      } else if (chNum === 13) {
+        initEnergyCanvas();
+
+      /* CHAPTER 14 SIMULATION */
+      } else if (chNum === 14) {
+        initLightCanvas();
+
+      /* CHAPTER 15 SIMULATION */
+      } else if (chNum === 15) {
+        initMachineCanvas();
+      }
+    }
+
+    const conceptDataMap = {
+      physical_change: {
+        title: "Physical Change",
+        icon: "✂️",
+        subtitle: "Shape, Size, or State Changes — No New Matter Forms!",
+        spokenText: "Physical Change. A physical change is a change in the size, shape, or state of matter without making any new kind of matter! For example, when you cut or fold a paper airplane, it looks different, but it is still paper. When ice melts into liquid water, you can freeze it right back into ice: the matter is still water!",
+        caption: "Left: Scissors cut paper into pieces (still paper!). Right: Solid ice cube melts into liquid water puddle!",
+        explanation: "In a <b>physical change</b>, the makeup of matter does not change. Cutting, folding, molding clay, tearing, boiling, and melting are all physical changes. If you freeze melted ice, you get your ice cube back!"
+      },
+      chemical_change: {
+        title: "Chemical Change",
+        icon: "🔥",
+        subtitle: "A Brand New Kind of Matter Forms With Different Properties!",
+        spokenText: "Chemical Change. A chemical change is a change in matter in which one or more completely new kinds of matter form! For example, when wood burns, it turns into black ash and smoke. When an iron nail gets wet, it reacts with oxygen to form orange rust. You cannot turn the ashes back into wood!",
+        caption: "Left: Matchstick burns into black ash and smoke. Right: Wet iron nail reacts and forms orange rust!",
+        explanation: "In a <b>chemical change</b>, new substances with brand new properties are created! Examples include burning wood, baking pancakes, digesting food in your stomach, and iron rusting."
+      },
+      strainer_filter: {
+        title: "Strainers and Filters",
+        icon: "☕",
+        subtitle: "Separating Mixtures by Particle Size",
+        spokenText: "Strainers and Filters. A filter or strainer separates substances by their size. Solid pieces that are larger than the holes get trapped, while liquids and tiny particles pass straight through!",
+        caption: "A mesh strainer traps large shells while fine sand and water pour through into the bowl!",
+        explanation: "Separating a mixture using a strainer or filter is a physical separation because neither substance changes into a new material."
+      },
+      solution_alloy: {
+        title: "Solutions and Alloys",
+        icon: "🎺",
+        subtitle: "Evenly Blended Mixtures & Metal Solutions",
+        spokenText: "Solutions and Alloys. A solution is a special mixture where substances dissolve completely and are so evenly mixed that you cannot see the separate parts. An alloy is a solid solution made of at least one metal, such as brass or steel!",
+        caption: "Salt dissolves invisibly into clear water. Below: Brass is a solid alloy of copper and zinc!",
+        explanation: "In a solution, each substance keeps its properties (like tasting salt in water), but particles are spread out evenly. Evaporating water leaves pure salt crystals behind!"
+      },
+      kinetic_energy: {
+        title: "Kinetic Energy",
+        icon: "🏃",
+        subtitle: "The Energy of Motion",
+        spokenText: "Kinetic Energy. Kinetic energy is the energy an object has because it is moving! The faster an object moves, the more kinetic energy it has!",
+        caption: "The faster the runner and the rolling ball move, the greater their kinetic energy!",
+        explanation: "Anything in motion has kinetic energy: a flying baseball, flowing river water, a running dog, or spinning wind turbines."
+      },
+      potential_energy: {
+        title: "Potential Energy",
+        icon: "🔋",
+        subtitle: "Stored Energy Waiting to be Released",
+        spokenText: "Potential Energy. Potential energy is energy stored in an object because of its position, its condition, or the chemical bonds in food and batteries!",
+        caption: "Pulling back an archer's bow stores potential energy ready to spring forward!",
+        explanation: "An apple hanging high on a tree branch, a stretched rubber band, and the chemical energy inside batteries all hold stored potential energy."
+      },
+      electric_circuit: {
+        title: "Electric Circuit",
+        icon: "💡",
+        subtitle: "A Complete Loop for Electric Current",
+        spokenText: "Electric Circuit. Electric current can only flow through a complete, closed loop called an electric circuit! If the switch is open, the path is broken and the light stays off!",
+        caption: "Electrons flow smoothly around the continuous loop to light up the incandescent bulb!",
+        explanation: "A circuit needs a power source (battery), conductive wires, an electrical device (light bulb), and a switch to turn current on and off."
+      },
+      heat_temperature: {
+        title: "Heat and Temperature",
+        icon: "🌡️",
+        subtitle: "Thermal Energy Flow and Thermometers",
+        spokenText: "Heat and Temperature. Thermal energy is the energy of moving particles. Heat is the transfer of thermal energy from warmer objects to cooler objects. A thermometer measures temperature in degrees Celsius or Fahrenheit!",
+        caption: "As thermal energy increases, particles vibrate faster and the red liquid in the thermometer rises!",
+        explanation: "When you put an ice cube into hot soup, heat flows from the hot soup into the cold ice cube until temperatures balance."
+      },
+      friction_color: {
+        title: "Friction and Color",
+        icon: "🧤",
+        subtitle: "Touching Surfaces and Reflected Light",
+        spokenText: "Friction and Color. Friction is a force that opposes motion when two surfaces rub together, producing warmth! An object looks a certain color because it reflects that specific color of light to your eyes!",
+        caption: "Rubbing hands together creates friction and heat! A blue shirt absorbs other colors and reflects blue light.",
+        explanation: "Friction slows down bicycle tires and sneakers. Objects appear blue because they reflect blue light rays and absorb the rest!"
+      },
+      force_work: {
+        title: "Force and Work",
+        icon: "💪",
+        subtitle: "Pushes, Pulls, and Moving Objects",
+        spokenText: "Force and Work. A force is a push or a pull. In science, work is only done when a force actually moves an object across a distance!",
+        caption: "Pushing a box across the floor is work! Pushing against a heavy brick wall that does not move is NOT work.",
+        explanation: "If you push a heavy boulder and it doesn't budge, no work is done. But if you lift your backpack onto your shoulders, you did work!"
+      },
+      gravity_friction: {
+        title: "Gravity and Friction",
+        icon: "🍎",
+        subtitle: "Earth's Pull and Resisting Forces",
+        spokenText: "Gravity and Friction. Gravity is the invisible force that pulls all objects toward each other, pulling us down to the ground. Friction slows moving objects down when surfaces touch!",
+        caption: "Gravity pulls the apple down from the tree toward Earth's surface!",
+        explanation: "Without gravity, we would float away into space! Friction between your shoes and the floor keeps you from slipping."
+      }
+    };
+
+    function openConceptDemo(key) {
+      const data = conceptDataMap[key];
+      if (!data) return;
+      activeConceptKey = key;
+
+      const modal = document.getElementById('conceptModal');
+      const icon = document.getElementById('conceptIcon');
+      const title = document.getElementById('conceptTitle');
+      const subtitle = document.getElementById('conceptSubtitle');
+      const caption = document.getElementById('conceptCanvasCaption');
+      const expl = document.getElementById('conceptExplanationText');
+
+      if (icon) icon.textContent = data.icon;
+      if (title) title.textContent = data.title;
+      if (subtitle) subtitle.textContent = data.subtitle;
+      if (caption) caption.textContent = data.caption;
+      if (expl) expl.innerHTML = data.explanation;
+
+      modal.classList.remove('hidden');
+      playTone('candy');
+      speakEnglish(data.spokenText);
+
+      startConceptCanvasAnimation(key);
+    }
+
+    function closeConceptDemo() {
+      const modal = document.getElementById('conceptModal');
+      if (modal) modal.classList.add('hidden');
+      if (conceptAnimId) {
+        cancelAnimationFrame(conceptAnimId);
+        conceptAnimId = null;
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    function repeatConceptSpeech() {
+      if (activeConceptKey && conceptDataMap[activeConceptKey]) {
+        speakEnglish(conceptDataMap[activeConceptKey].spokenText);
+      }
+    }
+
+    function startConceptCanvasAnimation(key) {
+      if (conceptAnimId) {
+        cancelAnimationFrame(conceptAnimId);
+        conceptAnimId = null;
+      }
+
+      const canvas = document.getElementById('conceptCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let frame = 0;
+
+      function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        frame += 0.04;
+
+        if (key === 'physical_change') {
+          // --- DIDACTIC VISUALIZATION FOR PHYSICAL CHANGE ---
+          // Dividing divider
+          ctx.strokeStyle = "rgba(255,255,255,0.2)";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(250, 10);
+          ctx.lineTo(250, 200);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // LEFT PANEL: Paper Cutting & Airplane (Changing shape)
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("1. Cutting Paper ✂️", 40, 25);
+
+          // Paper sheet
+          const cutOffset = Math.min(18, Math.max(0, (Math.sin(frame * 1.5) + 1) * 9));
+          // Left paper piece
+          ctx.fillStyle = "#f8fafc";
+          ctx.fillRect(40 - cutOffset, 60, 45, 75);
+          ctx.strokeStyle = "#cbd5e1";
+          ctx.strokeRect(40 - cutOffset, 60, 45, 75);
+
+          // Right paper piece
+          ctx.fillRect(88 + cutOffset, 60, 45, 75);
+          ctx.strokeRect(88 + cutOffset, 60, 45, 75);
+
+          // Animated Scissors
+          const scissY = 70 + (Math.sin(frame * 3) * 15);
+          ctx.font = "28px sans-serif";
+          ctx.fillText("✂️", 72, scissY);
+
+          // Folded paper airplane gliding below
+          const planeX = 35 + ((frame * 25) % 150);
+          const planeY = 165 + Math.sin(frame * 2) * 5;
+          ctx.font = "24px sans-serif";
+          ctx.fillText("✈️", planeX, planeY);
+
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillStyle = "#a7f3d0";
+          ctx.fillText("Still Paper! (Same Matter)", 28, 195);
+
+          // RIGHT PANEL: Ice Melting to Water (Changing state)
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("2. Melting Ice 🧊", 310, 25);
+
+          const meltCycle = (Math.sin(frame * 1.2) + 1) / 2; // 0 to 1
+          const cubeSize = 48 * (1 - meltCycle * 0.7);
+          const puddleWidth = 35 + meltCycle * 55;
+
+          // Warm Sun
+          ctx.font = "22px sans-serif";
+          ctx.fillText("☀️", 440, 50);
+
+          // Ice Cube
+          const cubeX = 350 - cubeSize / 2;
+          const cubeY = 120 - cubeSize;
+          ctx.fillStyle = "rgba(165, 243, 252, 0.85)";
+          ctx.fillRect(cubeX, cubeY, cubeSize, cubeSize);
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(cubeX, cubeY, cubeSize, cubeSize);
+
+          // Melted Water Puddle
+          ctx.fillStyle = "rgba(56, 189, 248, 0.75)";
+          ctx.beginPath();
+          ctx.ellipse(350, 125, puddleWidth, 12, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Droplets dripping
+          if (meltCycle > 0.3) {
+            ctx.fillStyle = "#38bdf8";
+            ctx.beginPath();
+            ctx.arc(350, cubeY + cubeSize + 3, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillStyle = "#a5f3fc";
+          ctx.fillText("Still Water! Can Re-freeze!", 285, 195);
+
+        } else if (key === 'chemical_change') {
+          // --- DIDACTIC VISUALIZATION FOR CHEMICAL CHANGE ---
+          // Divider
+          ctx.strokeStyle = "rgba(255,255,255,0.2)";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(250, 10);
+          ctx.lineTo(250, 200);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // LEFT PANEL: Burning Wood Match (Ash & Smoke)
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("1. Burning Match 🔥", 45, 25);
+
+          // Wooden match stick
+          ctx.fillStyle = "#b45309";
+          ctx.fillRect(50, 110, 110, 14);
+
+          // Burned charred black part
+          ctx.fillStyle = "#1e293b";
+          ctx.fillRect(130, 108, 30, 18);
+
+          // Crackling fire flame
+          const flameSize = 10 + Math.sin(frame * 10) * 4;
+          ctx.fillStyle = "#f59e0b";
+          ctx.beginPath();
+          ctx.arc(155, 115, flameSize + 3, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = "#ef4444";
+          ctx.beginPath();
+          ctx.arc(155, 113, flameSize, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Rising smoke particles 💨
+          ctx.fillStyle = "rgba(203, 213, 225, 0.6)";
+          for (let s = 0; s < 6; s++) {
+            const smX = 150 + Math.sin(frame * 3 + s) * 14;
+            const smY = 95 - ((frame * 25 + s * 16) % 55);
+            ctx.beginPath();
+            ctx.arc(smX, smY, 4 + s, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Crumbly ash falling
+          ctx.fillStyle = "#64748b";
+          for (let a = 0; a < 4; a++) {
+            const ashY = 125 + ((frame * 20 + a * 15) % 35);
+            ctx.fillRect(145 + a * 4, ashY, 3, 3);
+          }
+
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillStyle = "#fed7aa";
+          ctx.fillText("Forms Ash & Smoke! (New Matter)", 20, 195);
+
+          // RIGHT PANEL: Rusting Iron Nail
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("2. Rusting Iron 🔩", 310, 25);
+
+          // Clean steel nail body on left
+          ctx.fillStyle = "#94a3b8";
+          ctx.fillRect(290, 100, 60, 14);
+          ctx.fillRect(285, 95, 8, 24); // nail head
+
+          // Rusted orange iron section on right
+          ctx.fillStyle = "#ea580c";
+          ctx.fillRect(350, 99, 65, 16);
+          // Pointed tip
+          ctx.beginPath();
+          ctx.moveTo(415, 99);
+          ctx.lineTo(430, 107);
+          ctx.lineTo(415, 115);
+          ctx.closePath();
+          ctx.fill();
+
+          // Water drops + oxygen in air
+          ctx.fillStyle = "#38bdf8";
+          ctx.font = "18px sans-serif";
+          ctx.fillText("💧", 360, 75);
+          ctx.fillText("💧", 395, 80);
+
+          ctx.font = "bold 10px sans-serif";
+          ctx.fillStyle = "#bae6fd";
+          ctx.fillText("+ Oxygen & Water", 335, 60);
+
+          // Flaking rust powder
+          ctx.fillStyle = "#c2410c";
+          for (let r = 0; r < 5; r++) {
+            const rx = 355 + r * 12;
+            const ry = 122 + ((frame * 15 + r * 10) % 25);
+            ctx.fillRect(rx, ry, 3.5, 3.5);
+          }
+
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillStyle = "#fdba74";
+          ctx.fillText("Iron turns into Rust! (New Matter)", 270, 195);
+
+        } else if (key === 'strainer_filter') {
+          // Strainer visual
+          ctx.strokeStyle = "#94a3b8";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(250, 80, 80, 0, Math.PI);
+          ctx.stroke();
+
+          // Mesh holes
+          for (let x = 190; x <= 310; x += 15) {
+            ctx.beginPath();
+            ctx.moveTo(x, 80);
+            ctx.lineTo(x, 140);
+            ctx.stroke();
+          }
+
+          // Trapped seashells on top
+          ctx.font = "24px sans-serif";
+          ctx.fillText("🐚", 225, 95);
+          ctx.fillText("🐚", 260, 100);
+
+          // Sand grains falling through
+          ctx.fillStyle = "#facc15";
+          for (let i = 0; i < 20; i++) {
+            const sx = 205 + ((i * 17) % 90);
+            const sy = 90 + ((frame * 40 + i * 15) % 80);
+            ctx.beginPath();
+            ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#fde047";
+          ctx.fillText("Large parts trapped • Small parts pass through!", 120, 195);
+
+        } else if (key === 'solution_alloy') {
+          // Dissolving solution beaker
+          ctx.strokeStyle = "#94a3b8";
+          ctx.lineWidth = 3;
+          ctx.strokeRect(180, 40, 140, 120);
+          ctx.fillStyle = "rgba(56, 189, 248, 0.4)";
+          ctx.fillRect(182, 80, 136, 78);
+
+          // Dissolved molecules evenly spread
+          ctx.fillStyle = "#ffffff";
+          for (let m = 0; m < 25; m++) {
+            const mx = 195 + (m * 21) % 110;
+            const my = 90 + (m * 17 + Math.sin(frame + m) * 4) % 60;
+            ctx.beginPath();
+            ctx.arc(mx, my, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#e0e7ff";
+          ctx.fillText("Evenly mixed: particles cannot be seen!", 130, 195);
+
+        } else if (key === 'kinetic_energy') {
+          // Speeding runner / rolling ball
+          const ballX = 60 + ((frame * 90) % 380);
+          ctx.fillStyle = "#ef4444";
+          ctx.beginPath();
+          ctx.arc(ballX, 105, 26, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Motion lines
+          ctx.strokeStyle = "#facc15";
+          ctx.lineWidth = 3;
+          for (let l = 1; l <= 3; l++) {
+            ctx.beginPath();
+            ctx.moveTo(ballX - 30 - l * 12, 105);
+            ctx.lineTo(ballX - 10 - l * 12, 105);
+            ctx.stroke();
+          }
+
+          ctx.font = "bold 14px Fredoka, sans-serif";
+          ctx.fillStyle = "#fde047";
+          ctx.fillText("Moving Objects Have Kinetic Energy! 🏃", 120, 180);
+
+        } else if (key === 'potential_energy') {
+          // Stretched bow & arrow
+          ctx.strokeStyle = "#b45309";
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.arc(220, 100, 60, -Math.PI / 2, Math.PI / 2);
+          ctx.stroke();
+
+          // Bow string pulled back
+          const pullX = 170 - Math.sin(frame * 2) * 20;
+          ctx.strokeStyle = "#e2e8f0";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(220, 40);
+          ctx.lineTo(pullX, 100);
+          ctx.lineTo(220, 160);
+          ctx.stroke();
+
+          ctx.font = "bold 14px Fredoka, sans-serif";
+          ctx.fillStyle = "#93c5fd";
+          ctx.fillText("🏹 Energy Stored in Position or Tension!", 110, 190);
+
+        } else if (key === 'electric_circuit') {
+          // Closed circuit loop
+          ctx.strokeStyle = "#facc15";
+          ctx.lineWidth = 5;
+          ctx.strokeRect(120, 40, 260, 110);
+
+          // Glowing bulb
+          ctx.fillStyle = "#fef08a";
+          ctx.beginPath();
+          ctx.arc(250, 40, 20, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Moving charges
+          ctx.fillStyle = "#38bdf8";
+          for (let e = 0; e < 8; e++) {
+            const p = (frame * 70 + e * 60) % 740;
+            let cx = 120, cy = 40;
+            if (p < 260) { cx = 120 + p; cy = 40; }
+            else if (p < 370) { cx = 380; cy = 40 + (p - 260); }
+            else if (p < 630) { cx = 380 - (p - 370); cy = 150; }
+            else { cx = 120; cy = 150 - (p - 630); }
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#fef08a";
+          ctx.fillText("⚡ Complete Closed Loop Allows Current to Flow!", 105, 185);
+
+        } else if (key === 'heat_temperature') {
+          // --- DIDACTIC VISUALIZATION FOR HEAT AND TEMPERATURE (CH. 14) ---
+          // Divider
+          ctx.strokeStyle = "rgba(255,255,255,0.2)";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(250, 10);
+          ctx.lineTo(250, 200);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // LEFT PANEL: Heat Flow (Warm ➔ Cool)
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("1. Heat Transfer 🔥", 45, 25);
+
+          // Hot Soup Bowl
+          ctx.fillStyle = "#f97316";
+          ctx.beginPath();
+          ctx.arc(80, 130, 36, 0, Math.PI);
+          ctx.fill();
+          ctx.fillStyle = "#ea580c";
+          ctx.fillRect(44, 126, 72, 8);
+
+          // Rising steam curls from hot soup
+          ctx.strokeStyle = "rgba(254, 215, 170, 0.7)";
+          ctx.lineWidth = 2.5;
+          for (let s = 0; s < 3; s++) {
+            const sx = 65 + s * 16;
+            ctx.beginPath();
+            ctx.moveTo(sx, 120);
+            ctx.quadraticCurveTo(sx + Math.sin(frame * 4 + s) * 8, 95, sx, 75);
+            ctx.stroke();
+          }
+
+          // Metal Spoon (cooler object)
+          ctx.strokeStyle = "#cbd5e1";
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(85, 128);
+          ctx.lineTo(155, 85);
+          ctx.stroke();
+          ctx.fillStyle = "#94a3b8";
+          ctx.beginPath();
+          ctx.ellipse(80, 132, 10, 6, 0.4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Animated Heat Flow Arrows (Warmer ➔ Cooler)
+          const arrowProg = (frame * 35) % 80;
+          ctx.fillStyle = "#ef4444";
+          ctx.font = "16px sans-serif";
+          ctx.fillText("♨️ ➔", 85 + arrowProg * 0.7, 108);
+
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillStyle = "#fed7aa";
+          ctx.fillText("Heat Flows: Warm ➔ Cooler Spoon!", 20, 195);
+
+          // RIGHT PANEL: Thermometer & Particle Motion
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("2. Temperature & Particles 🌡️", 270, 25);
+
+          // Animated liquid column based on heat
+          const tempSine = (Math.sin(frame * 1.8) + 1) / 2; // 0 to 1
+          const liquidHeight = 30 + tempSine * 70;
+
+          // Thermometer Glass Outer Tube
+          ctx.strokeStyle = "#94a3b8";
+          ctx.lineWidth = 3;
+          ctx.strokeRect(300, 45, 18, 95);
+          ctx.beginPath();
+          ctx.arc(309, 150, 18, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Thermometer Red Liquid
+          ctx.fillStyle = "#ef4444";
+          ctx.beginPath();
+          ctx.arc(309, 150, 15, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillRect(303, 140 - liquidHeight, 12, liquidHeight);
+
+          // Tick marks on thermometer
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1.5;
+          for (let m = 55; m <= 135; m += 16) {
+            ctx.beginPath();
+            ctx.moveTo(318, m);
+            ctx.lineTo(326, m);
+            ctx.stroke();
+          }
+
+          // Thermal moving particles cloud beside thermometer
+          for (let p = 0; p < 12; p++) {
+            const speed = 1 + tempSine * 5;
+            const px = 370 + ((p * 23 + Math.sin(frame * speed + p) * 18) % 95);
+            const py = 70 + ((p * 19 + Math.cos(frame * speed + p) * 18) % 75);
+            ctx.fillStyle = tempSine > 0.5 ? "#f87171" : "#38bdf8";
+            ctx.beginPath();
+            ctx.arc(px, py, 4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillStyle = tempSine > 0.5 ? "#fca5a5" : "#bae6fd";
+          ctx.fillText(tempSine > 0.5 ? "Warmer = Faster Particles! 🔥" : "Cooler = Slower Particles! ❄️", 270, 195);
+
+        } else if (key === 'friction_color') {
+          // --- DIDACTIC VISUALIZATION FOR FRICTION AND COLOR (CH. 14) ---
+          // Divider
+          ctx.strokeStyle = "rgba(255,255,255,0.2)";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(250, 10);
+          ctx.lineTo(250, 200);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // LEFT PANEL: Friction Produces Thermal Warmth
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("1. Friction Generates Heat 🧤", 30, 25);
+
+          // Two rubbing hands/blocks moving back and forth rapidly
+          const rubOffset = Math.sin(frame * 8) * 16;
+          // Left hand
+          ctx.fillStyle = "#f59e0b";
+          ctx.fillRect(65, 80 + rubOffset, 34, 52);
+          ctx.strokeStyle = "#b45309";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(65, 80 + rubOffset, 34, 52);
+
+          // Right hand rubbing against it
+          ctx.fillStyle = "#fbbf24";
+          ctx.fillRect(99, 80 - rubOffset, 34, 52);
+          ctx.strokeRect(99, 80 - rubOffset, 34, 52);
+
+          // Animated Friction Sparks at contact line
+          ctx.fillStyle = "#ef4444";
+          for (let sp = 0; sp < 4; sp++) {
+            const sparkY = 85 + ((frame * 40 + sp * 20) % 45);
+            const sparkSize = 2 + Math.sin(frame * 12 + sp) * 2;
+            ctx.beginPath();
+            ctx.arc(99 + (Math.random() - 0.5) * 8, sparkY, Math.max(1, sparkSize), 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Thermal radiation warmth waves
+          ctx.strokeStyle = "#f97316";
+          ctx.lineWidth = 2;
+          for (let w = 1; w <= 3; w++) {
+            ctx.beginPath();
+            ctx.arc(99, 106, 38 + w * 12 + Math.sin(frame * 4) * 4, -0.6, 0.6);
+            ctx.stroke();
+          }
+
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillStyle = "#fed7aa";
+          ctx.fillText("Rubbing surfaces = Friction & Heat!", 25, 195);
+
+          // RIGHT PANEL: Color Reflection (Blue Sweater)
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("2. Light Reflection & Color 👕", 270, 25);
+
+          // Blue Sweater Body
+          ctx.fillStyle = "#2563eb";
+          ctx.beginPath();
+          ctx.moveTo(330, 80);
+          ctx.lineTo(315, 110);
+          ctx.lineTo(330, 110);
+          ctx.lineTo(330, 150);
+          ctx.lineTo(390, 150);
+          ctx.lineTo(390, 110);
+          ctx.lineTo(405, 110);
+          ctx.lineTo(390, 80);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = "#60a5fa";
+          ctx.lineWidth = 3;
+          ctx.stroke();
+
+          // Incoming White Light Rays (Red, Green, Blue)
+          // Red Light Absorbed
+          ctx.strokeStyle = "#ef4444";
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(270, 60);
+          ctx.lineTo(340, 100);
+          ctx.stroke();
+
+          // Green Light Absorbed
+          ctx.strokeStyle = "#22c55e";
+          ctx.beginPath();
+          ctx.moveTo(270, 75);
+          ctx.lineTo(340, 115);
+          ctx.stroke();
+
+          // Blue Light REFLECTED into Observer Eye
+          ctx.strokeStyle = "#38bdf8";
+          ctx.lineWidth = 3.5;
+          ctx.beginPath();
+          ctx.moveTo(270, 90);
+          ctx.lineTo(345, 130);
+          ctx.lineTo(435, 75); // bounced out!
+          ctx.stroke();
+
+          // Observer Eye icon
+          ctx.font = "26px sans-serif";
+          ctx.fillText("👁️", 435, 80);
+
+          ctx.font = "bold 10px sans-serif";
+          ctx.fillStyle = "#f87171";
+          ctx.fillText("Red/Green Absorbed ❌", 260, 50);
+
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillStyle = "#93c5fd";
+          ctx.fillText("Reflects Blue to Eye! (Looks Blue)", 265, 195);
+
+        } else if (key === 'force_work') {
+          // --- DIDACTIC VISUALIZATION FOR FORCE AND WORK (CH. 15) ---
+          // Divider
+          ctx.strokeStyle = "rgba(255,255,255,0.2)";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(250, 10);
+          ctx.lineTo(250, 200);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // LEFT PANEL: Pushing a Wall (No Movement = NO WORK)
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("1. Push Wall (No Motion) 🧱", 30, 25);
+
+          // Solid Brick Wall
+          ctx.fillStyle = "#78350f";
+          ctx.fillRect(165, 50, 36, 115);
+          // Brick lines
+          ctx.strokeStyle = "#d97706";
+          ctx.lineWidth = 1.5;
+          for (let y = 62; y < 165; y += 14) {
+            ctx.beginPath();
+            ctx.moveTo(165, y);
+            ctx.lineTo(201, y);
+            ctx.stroke();
+          }
+
+          // Person pushing hard against the wall
+          ctx.fillStyle = "#38bdf8";
+          // Head
+          ctx.beginPath();
+          ctx.arc(105, 85, 12, 0, Math.PI * 2);
+          ctx.fill();
+          // Leaning body
+          ctx.strokeStyle = "#38bdf8";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(105, 97);
+          ctx.lineTo(125, 135);
+          ctx.stroke();
+          // Stretched arms pushing wall
+          ctx.beginPath();
+          ctx.moveTo(112, 105);
+          ctx.lineTo(164, 98);
+          ctx.stroke();
+          // Leg
+          ctx.beginPath();
+          ctx.moveTo(125, 135);
+          ctx.lineTo(95, 165);
+          ctx.stroke();
+
+          // Push Force Arrow
+          ctx.fillStyle = "#fbbf24";
+          ctx.font = "bold 14px sans-serif";
+          ctx.fillText("➔ FORCE", 100, 70);
+
+          // Status Badge
+          ctx.fillStyle = "#fca5a5";
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillText("❌ Distance = 0 ➔ NO WORK!", 30, 195);
+
+          // RIGHT PANEL: Pushing Box Across Distance (WORK DONE)
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("2. Moving Box Over Distance 📦", 270, 25);
+
+          // Animated sliding box over floor
+          const moveProgress = (frame * 25) % 120;
+          const boxX = 300 + moveProgress;
+
+          // Floor line
+          ctx.strokeStyle = "#64748b";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(270, 155);
+          ctx.lineTo(480, 155);
+          ctx.stroke();
+
+          // Distance measurement arrow
+          ctx.strokeStyle = "#38bdf8";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(300, 170);
+          ctx.lineTo(440, 170);
+          ctx.stroke();
+          ctx.fillStyle = "#38bdf8";
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillText("↔ Distance (d)", 340, 185);
+
+          // Moving Heavy Wooden Box
+          ctx.fillStyle = "#b45309";
+          ctx.fillRect(boxX, 105, 42, 42);
+          ctx.strokeStyle = "#fef08a";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(boxX, 105, 42, 42);
+          // Box cross brace
+          ctx.beginPath();
+          ctx.moveTo(boxX, 105);
+          ctx.lineTo(boxX + 42, 147);
+          ctx.stroke();
+
+          // Applied Force Arrow
+          ctx.fillStyle = "#22c55e";
+          ctx.font = "bold 15px sans-serif";
+          ctx.fillText("➔ PUSH", boxX - 45, 125);
+
+          ctx.fillStyle = "#86efac";
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillText("✅ Force Moves Object = WORK! 💪", 265, 195);
+
+        } else if (key === 'gravity_friction') {
+          // --- DIDACTIC VISUALIZATION FOR GRAVITY AND FRICTION (CH. 15) ---
+          // Divider
+          ctx.strokeStyle = "rgba(255,255,255,0.2)";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(250, 10);
+          ctx.lineTo(250, 200);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // LEFT PANEL: Gravity Pulls Down to Earth
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("1. Earth's Gravity 🍎", 50, 25);
+
+          // Tree branch at top left
+          ctx.fillStyle = "#78350f";
+          ctx.fillRect(35, 45, 100, 12);
+          ctx.fillStyle = "#15803d";
+          ctx.beginPath();
+          ctx.arc(60, 42, 22, 0, Math.PI * 2);
+          ctx.arc(100, 42, 24, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Animated Apple falling under Gravity
+          const dropY = 60 + ((frame * 50) % 95);
+          ctx.font = "28px sans-serif";
+          ctx.fillText("🍎", 85, dropY);
+
+          // Downward Gravitational Force Arrows
+          ctx.strokeStyle = "#facc15";
+          ctx.lineWidth = 3;
+          for (let a = 0; a < 3; a++) {
+            const ay = 75 + a * 25;
+            ctx.beginPath();
+            ctx.moveTo(135, ay);
+            ctx.lineTo(135, ay + 15);
+            ctx.lineTo(130, ay + 10);
+            ctx.moveTo(135, ay + 15);
+            ctx.lineTo(140, ay + 10);
+            ctx.stroke();
+          }
+
+          // Earth ground surface
+          ctx.fillStyle = "#166534";
+          ctx.fillRect(35, 160, 160, 12);
+
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillStyle = "#fde047";
+          ctx.fillText("Gravity pulls objects DOWN! ⬇", 25, 195);
+
+          // RIGHT PANEL: Friction Opposing Motion
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillText("2. Friction Opposes Motion 🛷", 270, 25);
+
+          // Rough Ground with bumps
+          ctx.strokeStyle = "#64748b";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(270, 145);
+          for (let gx = 270; gx <= 480; gx += 10) {
+            ctx.lineTo(gx, 145 + ((gx % 20 === 0) ? 3 : 0));
+          }
+          ctx.stroke();
+
+          // Sled moving to the right
+          const sledX = 310 + Math.sin(frame * 2) * 35;
+          ctx.fillStyle = "#ef4444";
+          ctx.fillRect(sledX, 120, 55, 18);
+          // Sled runners
+          ctx.strokeStyle = "#cbd5e1";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(sledX - 5, 143);
+          ctx.lineTo(sledX + 60, 143);
+          ctx.lineTo(sledX + 68, 130);
+          ctx.stroke();
+
+          // Forward Motion Arrow
+          ctx.fillStyle = "#22c55e";
+          ctx.font = "bold 12px sans-serif";
+          ctx.fillText("➔ Motion", sledX + 10, 110);
+
+          // Opposing Friction Arrows (pointing backward at contact surface)
+          ctx.strokeStyle = "#f97316";
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(sledX + 35, 149);
+          ctx.lineTo(sledX - 10, 149);
+          ctx.lineTo(sledX - 4, 144);
+          ctx.moveTo(sledX - 10, 149);
+          ctx.lineTo(sledX - 4, 154);
+          ctx.stroke();
+
+          ctx.fillStyle = "#f97316";
+          ctx.font = "bold 10px sans-serif";
+          ctx.fillText("⬅ Friction", sledX - 18, 164);
+
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillStyle = "#fed7aa";
+          ctx.fillText("Friction resists and slows down!", 265, 195);
+
+        } else {
+          // Generic fallback animation
+          ctx.fillStyle = "#38bdf8";
+          ctx.beginPath();
+          ctx.arc(250, 95, 40 + Math.sin(frame * 2) * 10, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.font = "bold 14px Fredoka, sans-serif";
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText("Interactive Science Principle in Action!", 120, 180);
+        }
+
+        conceptAnimId = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    /* CHAPTER 12: Animated Separation Lab */
+    function setMixtureSeparationMode(mode) {
+      ch12Mode = mode;
+      playTone('candy');
+      ['strainer', 'magnet', 'evaporation'].forEach(m => {
+        const btn = document.getElementById(m === 'strainer' ? 'btnSepStrainer' : m === 'magnet' ? 'btnSepMagnet' : 'btnSepEvap');
+        if (btn) {
+          btn.className = (m === mode) 
+            ? "duo-btn-amber p-3.5 text-white rounded-2xl font-black text-xs shadow-md"
+            : "p-3.5 bg-white rounded-2xl border-2 border-amber-300 font-black text-xs text-slate-800 hover:bg-amber-100 transition shadow-sm";
+        }
+      });
+
+      const text = document.getElementById('mixtureExplanationText');
+      if (mode === 'strainer') {
+        text.textContent = "Strainer separates by size! Small sand grains fall through the mesh, while large sea shells are trapped on top!";
+        speakEnglish("A strainer separates by particle size. Sand passes through the holes, and larger shells stay inside.");
+      } else if (mode === 'magnet') {
+        text.textContent = "Magnet pulls magnetic steel tacks right up into the air, safely leaving non-magnetic rubber erasers!";
+        speakEnglish("Steel tacks are magnetic. A magnet lifts them without touching the sharp points.");
+      } else if (mode === 'evaporation') {
+        text.textContent = "Heating salt water evaporates the liquid into gas, leaving pure white salt crystals at the bottom!";
+        speakEnglish("In salt water, heat evaporates the liquid water, leaving dry salt crystals behind.");
+      }
+    }
+
+    function initMixtureCanvas() {
+      const canvas = document.getElementById('mixtureCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let t = 0;
+
+      function renderMixture() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        t += 0.04;
+
+        if (ch12Mode === 'strainer') {
+          // Strainer Mesh
+          ctx.strokeStyle = "#cbd5e1";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(280, 90, 100, 0, Math.PI);
+          ctx.stroke();
+
+          // Mesh grid lines
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = "#94a3b8";
+          for (let x = 200; x <= 360; x += 15) {
+            ctx.beginPath();
+            ctx.moveTo(x, 90);
+            ctx.lineTo(x, 150);
+            ctx.stroke();
+          }
+
+          // Sea Shells trapped inside mesh
+          const shells = [
+            { x: 250, y: 110, em: '🐚' },
+            { x: 280, y: 115, em: '🐚' },
+            { x: 310, y: 108, em: '🐚' }
+          ];
+          ctx.font = "24px sans-serif";
+          shells.forEach(s => ctx.fillText(s.em, s.x, s.y));
+
+          // Falling sand grains
+          ctx.fillStyle = "#fde047";
+          for (let i = 0; i < 28; i++) {
+            const sx = 220 + ((i * 19 + Math.floor(t * 12)) % 120);
+            const sy = 120 + ((i * 17 + Math.floor(t * 40)) % 80);
+            ctx.beginPath();
+            ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Sand collecting bowl at bottom
+          ctx.fillStyle = "#fef08a";
+          ctx.beginPath();
+          ctx.ellipse(280, 205, 90, 16, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#713f12";
+          ctx.fillText("Filtered Sand in Bowl", 225, 210);
+
+        } else if (ch12Mode === 'magnet') {
+          // Horseshoe Magnet moving up and down
+          const magY = 50 + Math.sin(t) * 12;
+          ctx.fillStyle = "#ef4444";
+          ctx.fillRect(240, magY, 24, 60);
+          ctx.fillStyle = "#3b82f6";
+          ctx.fillRect(296, magY, 24, 60);
+          ctx.fillStyle = "#64748b";
+          ctx.fillRect(240, magY, 80, 16);
+
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 12px sans-serif";
+          ctx.fillText("N", 248, magY + 50);
+          ctx.fillText("S", 304, magY + 50);
+
+          // Magnetic field glow
+          ctx.strokeStyle = "rgba(56, 189, 248, 0.4)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(280, magY + 60, 45, 0, Math.PI);
+          ctx.stroke();
+
+          // Steel tacks attracted to magnet
+          const tacks = [
+            { x: 248, y: magY + 66 },
+            { x: 275, y: magY + 70 },
+            { x: 304, y: magY + 66 }
+          ];
+          ctx.font = "18px sans-serif";
+          tacks.forEach(k => ctx.fillText("📌", k.x, k.y));
+
+          // Rubber erasers staying on the table
+          ctx.font = "22px sans-serif";
+          ctx.fillText("🧱", 200, 200);
+          ctx.fillText("🧱", 330, 200);
+          ctx.fillText("🧱", 260, 200);
+
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#f8fafc";
+          ctx.fillText("Rubber Erasers (Non-Magnetic)", 185, 222);
+
+        } else if (ch12Mode === 'evaporation') {
+          // Beaker with salt water
+          ctx.strokeStyle = "#94a3b8";
+          ctx.lineWidth = 3;
+          ctx.strokeRect(200, 70, 160, 130);
+
+          // Liquid level receding
+          ctx.fillStyle = "rgba(56, 189, 248, 0.4)";
+          ctx.fillRect(202, 140, 156, 60);
+
+          // Rising steam vapor particles
+          ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+          for (let p = 0; p < 18; p++) {
+            const vx = 210 + (p * 23 + Math.sin(t + p) * 10) % 140;
+            const vy = 135 - ((t * 40 + p * 20) % 90);
+            ctx.beginPath();
+            ctx.arc(vx, vy, 4 + Math.sin(p), 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Shiny Salt Crystals forming at bottom
+          ctx.fillStyle = "#ffffff";
+          for (let c = 0; c < 8; c++) {
+            ctx.fillRect(220 + c * 16, 188 + (c % 2) * 4, 10, 8);
+          }
+
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#e0f2fe";
+          ctx.fillText("Water Evaporates ↗", 290, 60);
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText("Pure Salt Crystals Remain 🧂", 205, 220);
+        }
+
+        simAnimId = requestAnimationFrame(renderMixture);
+      }
+      renderMixture();
+    }
+
+    /* CHAPTER 13: Wave & Electric Circuit Studio */
+    function setEnergyLabMode(mode) {
+      ch13Mode = mode;
+      playTone('candy');
+      const bW = document.getElementById('btnLabWave');
+      const bC = document.getElementById('btnLabCircuit');
+      const wBox = document.getElementById('waveControlsBox');
+      const cBox = document.getElementById('circuitControlsBox');
+      const text = document.getElementById('energyExplanationText');
+
+      if (mode === 'wave') {
+        bW.className = "duo-btn-amber px-4 py-1.5 text-white rounded-xl text-xs font-black shadow";
+        bC.className = "px-4 py-1.5 bg-white text-slate-700 border-2 border-yellow-300 rounded-xl text-xs font-black hover:bg-yellow-100 transition shadow";
+        wBox.classList.remove('hidden');
+        cBox.classList.add('hidden');
+        text.textContent = "Watch the sailboat bob up and down! Waves carry energy from place to place without pushing water sideways!";
+        speakEnglish("Waves carry energy from place to place. The boat moves up and down as wave energy passes through.");
+      } else {
+        bC.className = "duo-btn-amber px-4 py-1.5 text-white rounded-xl text-xs font-black shadow";
+        bW.className = "px-4 py-1.5 bg-white text-slate-700 border-2 border-yellow-300 rounded-xl text-xs font-black hover:bg-yellow-100 transition shadow";
+        wBox.classList.add('hidden');
+        cBox.classList.remove('hidden');
+        text.textContent = "Electric current flows only through a complete closed circuit loop to light the bulb!";
+        speakEnglish("Electric current can flow only through a complete circuit loop.");
+      }
+    }
+
+    function toggleCircuitSwitch() {
+      isCircuitClosed = !isCircuitClosed;
+      playTone(isCircuitClosed ? 'success' : 'error');
+      const btn = document.getElementById('btnCircuitSwitch');
+      if (btn) {
+        btn.textContent = isCircuitClosed 
+          ? "⚡ Toggle Switch: CLOSED (Current Flows!)" 
+          : "⭕ Toggle Switch: OPEN (Circuit Broken - No Current)";
+        btn.className = isCircuitClosed ? "duo-btn-green px-6 py-2.5 text-white rounded-2xl font-black text-xs" : "duo-btn-purple px-6 py-2.5 text-white rounded-2xl font-black text-xs";
+      }
+      speakEnglish(isCircuitClosed ? "Switch closed! Electricity flows and bulb lights up!" : "Switch open! Circuit broken, the light turns off.");
+    }
+
+    function initEnergyCanvas() {
+      const canvas = document.getElementById('energyCanvas');
+      const slider = document.getElementById('waveFreqSlider');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let step = 0;
+
+      function renderEnergy() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        step += 0.05;
+
+        if (ch13Mode === 'wave') {
+          const freq = (slider ? parseInt(slider.value) : 2) * 0.022;
+
+          // Draw wave curve
+          ctx.beginPath();
+          ctx.lineWidth = 5;
+          ctx.strokeStyle = "#38bdf8";
+
+          let boatY = 120;
+          const boatX = 280;
+
+          for (let x = 0; x < canvas.width; x++) {
+            const y = canvas.height / 2 + Math.sin(x * freq + step) * 45;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+            if (Math.abs(x - boatX) < 2) boatY = y;
+          }
+          ctx.stroke();
+
+          // Fill water area under wave
+          ctx.lineTo(canvas.width, canvas.height);
+          ctx.lineTo(0, canvas.height);
+          ctx.fillStyle = "rgba(14, 165, 233, 0.25)";
+          ctx.fill();
+
+          // Draw Crest and Trough labels
+          ctx.font = "bold 13px Fredoka, sans-serif";
+          ctx.fillStyle = "#fde047";
+          ctx.fillText("▲ CREST (Highest Point)", 60, 40);
+          ctx.fillStyle = "#f43f5e";
+          ctx.fillText("▼ TROUGH (Lowest Point)", 360, canvas.height - 18);
+
+          // Animated Toy Sailboat bobbing
+          ctx.font = "34px sans-serif";
+          ctx.fillText("⛵", boatX - 18, boatY + 6);
+
+          // Wavelength double-arrow indicator
+          ctx.strokeStyle = "#facc15";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(80, 20);
+          ctx.lineTo(80 + (Math.PI * 2 / freq), 20);
+          ctx.stroke();
+          ctx.fillStyle = "#facc15";
+          ctx.font = "bold 11px sans-serif";
+          ctx.fillText("↔ Wavelength", 85, 16);
+
+        } else if (ch13Mode === 'circuit') {
+          // Closed Circuit Loop wires
+          ctx.lineWidth = 6;
+          ctx.strokeStyle = isCircuitClosed ? "#facc15" : "#64748b";
+          ctx.strokeRect(100, 50, 360, 130);
+
+          // Battery on the left
+          ctx.fillStyle = "#0284c7";
+          ctx.fillRect(80, 90, 40, 60);
+          ctx.fillStyle = "#ef4444";
+          ctx.fillRect(92, 80, 16, 10);
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 12px sans-serif";
+          ctx.fillText("BATTERY", 75, 168);
+
+          // Light Bulb at top
+          ctx.beginPath();
+          ctx.arc(280, 50, 24, 0, Math.PI * 2);
+          ctx.fillStyle = isCircuitClosed ? "#fde047" : "#475569";
+          ctx.fill();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = "#e2e8f0";
+          ctx.stroke();
+
+          if (isCircuitClosed) {
+            // Glowing light rays
+            ctx.strokeStyle = "#fef08a";
+            ctx.lineWidth = 3;
+            for (let a = 0; a < 8; a++) {
+              const ang = (a * Math.PI) / 4;
+              ctx.beginPath();
+              ctx.moveTo(280 + Math.cos(ang) * 28, 50 + Math.sin(ang) * 28);
+              ctx.lineTo(280 + Math.cos(ang) * 44, 50 + Math.sin(ang) * 44);
+              ctx.stroke();
+            }
+          }
+
+          // Switch at bottom wire
+          ctx.fillStyle = "#1e293b";
+          ctx.fillRect(260, 175, 50, 15);
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(260, 180);
+          if (isCircuitClosed) {
+            ctx.lineTo(310, 180);
+          } else {
+            ctx.lineTo(300, 155); // open knife switch
+          }
+          ctx.stroke();
+
+          // Flowing electron dots if circuit is closed
+          if (isCircuitClosed) {
+            ctx.fillStyle = "#facc15";
+            for (let e = 0; e < 12; e++) {
+              const pos = (step * 80 + e * 70) % 980;
+              let ex = 100, ey = 50;
+              if (pos < 360) { ex = 100 + pos; ey = 50; }
+              else if (pos < 490) { ex = 460; ey = 50 + (pos - 360); }
+              else if (pos < 850) { ex = 460 - (pos - 490); ey = 180; }
+              else { ex = 100; ey = 180 - (pos - 850); }
+
+              ctx.beginPath();
+              ctx.arc(ex, ey, 4, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+
+        simAnimId = requestAnimationFrame(renderEnergy);
+      }
+      renderEnergy();
+    }
+
+    /* CHAPTER 14: Light Reflection & Refraction */
+    function setLightMode(mode) {
+      ch14Mode = mode;
+      playTone('candy');
+      const bReflect = document.getElementById('btnReflect');
+      const bRefract = document.getElementById('btnRefract');
+      const text = document.getElementById('lightExplanationText');
+
+      if (mode === 'reflect') {
+        bReflect.className = "duo-btn-purple px-5 py-2.5 text-white rounded-2xl font-black text-xs";
+        bRefract.className = "px-5 py-2.5 bg-slate-200 text-slate-700 rounded-2xl font-black text-xs hover:bg-slate-300 transition";
+        text.textContent = "When light waves bounce off an object like a mirror, that is REFLECTION!";
+        speakEnglish("When light waves bounce off a mirror, that is reflection!");
+      } else {
+        bRefract.className = "duo-btn-purple px-5 py-2.5 text-white rounded-2xl font-black text-xs";
+        bReflect.className = "px-5 py-2.5 bg-slate-200 text-slate-700 rounded-2xl font-black text-xs hover:bg-slate-300 transition";
+        text.textContent = "When light passes into water, it bends: that is REFRACTION!";
+        speakEnglish("When light passes into water, it bends. That is refraction!");
+      }
+    }
+
+    function initLightCanvas() {
+      const canvas = document.getElementById('lightCanvas');
+      const slider = document.getElementById('lightAngleSlider');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      function renderLight() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const deg = slider ? parseInt(slider.value) : 45;
+        const rad = (deg * Math.PI) / 180;
+
+        if (ch14Mode === 'reflect') {
+          // Mirror surface
+          ctx.fillStyle = "#64748b";
+          ctx.fillRect(80, 170, 400, 16);
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 12px sans-serif";
+          ctx.fillText("FLAT SHINY MIRROR", 220, 183);
+
+          const hitX = 280;
+          const hitY = 170;
+          const startX = hitX - Math.tan(rad) * 130;
+
+          // Incoming light beam
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "#facc15";
+          ctx.beginPath();
+          ctx.moveTo(startX, 40);
+          ctx.lineTo(hitX, hitY);
+          ctx.stroke();
+
+          // Reflected light beam
+          const endX = hitX + Math.tan(rad) * 130;
+          ctx.strokeStyle = "#38bdf8";
+          ctx.beginPath();
+          ctx.moveTo(hitX, hitY);
+          ctx.lineTo(endX, 40);
+          ctx.stroke();
+
+          // Normal line
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(hitX, 20);
+          ctx.lineTo(hitX, hitY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#facc15";
+          ctx.fillText("Incoming Ray ↘", Math.max(70, startX - 30), 30);
+          ctx.fillStyle = "#38bdf8";
+          ctx.fillText("↗ Reflected Ray", Math.min(370, endX - 20), 30);
+
+        } else if (ch14Mode === 'refract') {
+          // Water container boundary
+          ctx.fillStyle = "rgba(56, 189, 248, 0.35)";
+          ctx.fillRect(80, 110, 400, 100);
+          ctx.fillStyle = "#38bdf8";
+          ctx.font = "bold 12px sans-serif";
+          ctx.fillText("WATER BOUNDARY", 220, 105);
+
+          const hitX = 280;
+          const hitY = 110;
+          const startX = hitX - Math.tan(rad) * 80;
+
+          // Light in air
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "#facc15";
+          ctx.beginPath();
+          ctx.moveTo(startX, 30);
+          ctx.lineTo(hitX, hitY);
+          ctx.stroke();
+
+          // Bent refracted ray in water (bent towards normal)
+          const refractRad = Math.asin(Math.sin(rad) / 1.33);
+          const endX = hitX + Math.tan(refractRad) * 90;
+
+          ctx.strokeStyle = "#fb923c";
+          ctx.beginPath();
+          ctx.moveTo(hitX, hitY);
+          ctx.lineTo(endX, 200);
+          ctx.stroke();
+
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#facc15";
+          ctx.fillText("Light in Air ↘", startX - 20, 25);
+          ctx.fillStyle = "#fb923c";
+          ctx.fillText("Bent in Water (REFRACTED) ↘", endX - 10, 220);
+        }
+
+        simAnimId = requestAnimationFrame(renderLight);
+      }
+      renderLight();
+    }
+
+    /* CHAPTER 15: The 6 Simple Machines Live Visualizer */
+    function setMachineVisual(type) {
+      ch15Machine = type;
+      playTone('candy');
+      ['lever', 'pulley', 'wheel', 'plane', 'wedge', 'screw'].forEach(m => {
+        const btn = document.getElementById(`mBtn_${m}`);
+        if (btn) {
+          btn.className = (m === type)
+            ? "duo-btn-green p-3 text-white rounded-2xl font-black text-xs shadow-md"
+            : "p-3 bg-white border-2 border-teal-300 rounded-2xl font-black text-xs text-teal-900 hover:bg-teal-100 transition shadow-sm";
+        }
+      });
+
+      const box = document.getElementById('machineDescriptionBox');
+      const data = {
+        lever: "Lever: A stiff bar turning on a fixed fulcrum point! Pushing down on one end lifts a heavy load on the other! (Seesaw, crowbar)",
+        pulley: "Pulley: A rope fitted around a grooved wheel! Makes lifting heavy loads straight up much easier! (Flagpole, crane)",
+        wheel: "Wheel and Axle: A large wheel turning a central shaft! Amplifies circular turning force! (Doorknob, steering wheel)",
+        plane: "Inclined Plane: A slanted flat ramp! Sliding a heavy box up a ramp requires much less effort than lifting it straight up!",
+        wedge: "Wedge: Two inclined planes back-to-back! Drives in to cut or split objects apart! (Ax blade, knife)",
+        screw: "Screw: An inclined plane wrapped spirally around a column! Holds and fastens objects tightly together!"
+      };
+
+      if (box) box.textContent = data[type];
+      speakEnglish(data[type]);
+    }
+
+    function initMachineCanvas() {
+      const canvas = document.getElementById('machineCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let t = 0;
+
+      function renderMachine() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        t += 0.035;
+
+        if (ch15Machine === 'lever') {
+          // Lever pivoting on fulcrum
+          const pivotX = 280;
+          const pivotY = 160;
+          const angle = Math.sin(t) * 0.28;
+
+          // Fulcrum Triangle
+          ctx.fillStyle = "#f59e0b";
+          ctx.beginPath();
+          ctx.moveTo(pivotX, pivotY);
+          ctx.lineTo(pivotX - 25, pivotY + 45);
+          ctx.lineTo(pivotX + 25, pivotY + 45);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.save();
+          ctx.translate(pivotX, pivotY);
+          ctx.rotate(angle);
+
+          // Stiff wooden bar
+          ctx.fillStyle = "#854d0e";
+          ctx.fillRect(-170, -8, 340, 16);
+
+          // Heavy load on left
+          ctx.fillStyle = "#64748b";
+          ctx.fillRect(-150, -48, 40, 40);
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 10px sans-serif";
+          ctx.fillText("100kg", -146, -24);
+
+          // Push force arrow on right
+          ctx.fillStyle = "#22c55e";
+          ctx.font = "24px sans-serif";
+          ctx.fillText("⬇", 130, -10);
+
+          ctx.restore();
+
+        } else if (ch15Machine === 'pulley') {
+          // Grooved Pulley Wheel
+          const wheelX = 280;
+          const wheelY = 60;
+          const wheelR = 35;
+
+          ctx.fillStyle = "#475569";
+          ctx.beginPath();
+          ctx.arc(wheelX, wheelY, wheelR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "#cbd5e1";
+          ctx.stroke();
+
+          // Pulley rope
+          const loadY = 100 + Math.sin(t) * 35;
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "#facc15";
+          ctx.beginPath();
+          ctx.moveTo(wheelX - wheelR, 190); // pull side
+          ctx.lineTo(wheelX - wheelR, wheelY);
+          ctx.arc(wheelX, wheelY, wheelR, Math.PI, 0);
+          ctx.lineTo(wheelX + wheelR, loadY); // cargo side
+          ctx.stroke();
+
+          // Cargo box
+          ctx.fillStyle = "#b45309";
+          ctx.fillRect(wheelX + wheelR - 20, loadY, 40, 36);
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 10px sans-serif";
+          ctx.fillText("LOAD", wheelX + wheelR - 16, loadY + 22);
+
+          // Pull effort arrow
+          ctx.fillStyle = "#22c55e";
+          ctx.font = "24px sans-serif";
+          ctx.fillText("⬇ Pull Effort", wheelX - wheelR - 40, 175);
+
+        } else if (ch15Machine === 'wheel') {
+          // Wheel and Axle
+          const cx = 280, cy = 115;
+          const angle = t * 1.5;
+
+          // Outer Wheel
+          ctx.lineWidth = 8;
+          ctx.strokeStyle = "#38bdf8";
+          ctx.beginPath();
+          ctx.arc(cx, cy, 70, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Inner Axle
+          ctx.fillStyle = "#f59e0b";
+          ctx.beginPath();
+          ctx.arc(cx, cy, 24, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Spokes
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "#94a3b8";
+          for (let s = 0; s < 4; s++) {
+            const sp = angle + (s * Math.PI) / 2;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + Math.cos(sp) * 70, cy + Math.sin(sp) * 70);
+            ctx.stroke();
+          }
+
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#38bdf8";
+          ctx.fillText("Large Outer Wheel", cx - 55, cy - 80);
+          ctx.fillStyle = "#f59e0b";
+          ctx.fillText("Small Axle Shaft", cx - 45, cy + 38);
+
+        } else if (ch15Machine === 'plane') {
+          // Inclined Plane (Ramp)
+          ctx.fillStyle = "#64748b";
+          ctx.beginPath();
+          ctx.moveTo(120, 190);
+          ctx.lineTo(440, 190);
+          ctx.lineTo(440, 70);
+          ctx.closePath();
+          ctx.fill();
+
+          // Rolling cart up ramp
+          const progress = (Math.sin(t) + 1) / 2;
+          const cartX = 140 + progress * 260;
+          const cartY = 180 - progress * 98;
+
+          ctx.save();
+          ctx.translate(cartX, cartY);
+          ctx.rotate(-0.36);
+          ctx.fillStyle = "#22c55e";
+          ctx.fillRect(-22, -18, 44, 24);
+          ctx.fillStyle = "#1e293b";
+          ctx.beginPath();
+          ctx.arc(-14, 8, 6, 0, Math.PI * 2);
+          ctx.arc(14, 8, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText("Slanted Surface (Less Effort to Raise)", 150, 215);
+
+        } else if (ch15Machine === 'wedge') {
+          // Wedge splitting wood block
+          const split = (Math.sin(t) + 1) * 12;
+
+          // Left log half
+          ctx.fillStyle = "#854d0e";
+          ctx.fillRect(230 - split, 100, 45, 90);
+          // Right log half
+          ctx.fillRect(285 + split, 100, 45, 90);
+
+          // Steel Wedge driving down
+          const wedgeY = 70 + Math.sin(t) * 15;
+          ctx.fillStyle = "#94a3b8";
+          ctx.beginPath();
+          ctx.moveTo(260, wedgeY);
+          ctx.lineTo(300, wedgeY);
+          ctx.lineTo(280, wedgeY + 60);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText("⬇ Two Slanted Planes Push Apart", 185, 45);
+
+        } else if (ch15Machine === 'screw') {
+          // Screw rotating and entering beam
+          const rotY = (t * 24) % 30;
+          ctx.fillStyle = "#cbd5e1";
+          ctx.fillRect(265, 50, 30, 110);
+
+          // Spiral threads
+          ctx.strokeStyle = "#334155";
+          ctx.lineWidth = 4;
+          for (let th = 60; th < 150; th += 15) {
+            const yPos = th + (rotY % 15);
+            ctx.beginPath();
+            ctx.moveTo(260, yPos);
+            ctx.lineTo(300, yPos + 6);
+            ctx.stroke();
+          }
+
+          // Pointed tip
+          ctx.fillStyle = "#94a3b8";
+          ctx.beginPath();
+          ctx.moveTo(265, 160);
+          ctx.lineTo(295, 160);
+          ctx.lineTo(280, 185);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.font = "bold 12px Fredoka, sans-serif";
+          ctx.fillStyle = "#38bdf8";
+          ctx.fillText("Spiral Inclined Plane", 225, 35);
+        }
+
+        simAnimId = requestAnimationFrame(renderMachine);
+      }
+      renderMachine();
+    }
+
+    function renderGlossaryView(container, chNum) {
+      const ch = chaptersData[chNum];
+      checkedGlossaryTerms = new Set();
+      if (glossaryAutoAdvanceTimer) {
+        clearTimeout(glossaryAutoAdvanceTimer);
+        glossaryAutoAdvanceTimer = null;
+      }
+
+      const missed = getMissedTerms();
+      const missedInThisChapter = ch.glossary.filter(item => isTermMissed(item.term));
+
+      if (missedInThisChapter.length > 0) {
+        updateMascotMessage(`Pay more attention to these parts! The terms you missed are highlighted in bright yellow!`);
+        speakEnglish(`Pay more attention to these parts! The vocabulary words you missed are highlighted in bright yellow so you can practice them!`);
+      } else {
+        updateMascotMessage(`Glossary for Chapter ${chNum}: Tap each card to listen! Check all cards to automatically start the Review Quiz!`);
+        speakEnglish(`Vocabulary glossary for ${ch.spokenTitle}. Tap any card to hear its definition. Check all terms to start your quiz!`);
+      }
+
+      const totalTerms = ch.glossary.length;
+
+      const listHtml = ch.glossary.map((item, index) => {
+        const isMissed = isTermMissed(item.term);
+
+        return `
+          <div id="glossaryCard_${index}" onclick="handleGlossaryCardClick(${chNum}, ${index})" 
+            class="duo-card relative cursor-pointer ${isMissed ? 'bg-yellow-100/90 border-4 border-amber-400 ring-4 ring-yellow-300/80 shadow-lg' : 'bg-white border-3 border-purple-200'} hover:border-purple-400 hover:shadow-md transition-all flex flex-col justify-between p-4 md:p-5 rounded-2xl shadow-sm select-none">
+            
+            ${isMissed ? `
+              <div class="bg-amber-400 text-amber-950 font-black text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-2 flex items-center gap-1.5 w-fit shadow border border-amber-500">
+                <span>⚠️</span> <span>Pay more attention to this part!</span>
+              </div>
+            ` : ''}
+
+            <!-- Top Row: Icon, Term & Checkmark Badge -->
+            <div class="flex items-center justify-between gap-3 mb-2.5">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl ${isMissed ? 'bg-amber-200 border-2 border-amber-400' : 'bg-purple-100 border-2 border-purple-200'} flex items-center justify-center text-2xl flex-shrink-0">
+                  ${item.icon}
+                </div>
+                <div>
+                  <h4 class="text-lg font-black text-purple-950 capitalize flex items-center gap-1.5">
+                    <span>${item.term}</span>
+                    <span class="text-xs text-purple-500 font-extrabold">🔊</span>
+                  </h4>
+                  <span class="text-[11px] font-black uppercase text-purple-600 tracking-wider">Tap to listen</span>
+                </div>
+              </div>
+
+              <!-- Top Right Green Checkmark Badge -->
+              <div id="glossaryCheck_${index}" class="w-8 h-8 rounded-full border-2 border-slate-300 bg-slate-100 text-slate-300 flex items-center justify-center font-black text-sm flex-shrink-0 transition-all duration-300">
+                ✓
+              </div>
+            </div>
+
+            <!-- Definition Enclosed in Distinct Bordered Container -->
+            <div id="glossaryDef_${index}" class="${isMissed ? 'bg-yellow-50/90 border-2 border-amber-400 text-amber-950' : 'bg-purple-50/70 border-2 border-purple-200 text-slate-700'} rounded-xl p-3 font-extrabold text-xs md:text-sm leading-relaxed transition-all">
+              ${item.def}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-purple-300 max-w-4xl mx-auto w-full">
+          <div class="flex items-center justify-between border-b-2 border-slate-100 pb-4 mb-4">
+            <button onclick="showView('map')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-black text-sm flex items-center gap-2 border border-slate-300 transition">
+              <span>⬅️ Map</span>
+            </button>
+            <div class="text-center">
+              <span class="text-xs font-black uppercase text-purple-600 tracking-wider">Chapter Glossary</span>
+              <h2 class="text-2xl md:text-3xl font-black text-slate-800">Chapter ${chNum} Terms</h2>
+            </div>
+            <button onclick="showView('lesson', ${chNum})" class="px-4 py-2 bg-sky-50 text-sky-700 hover:bg-sky-100 rounded-2xl font-black text-sm flex items-center gap-2 border-2 border-sky-200 transition">
+              <span>📖 Lesson</span>
+            </button>
+          </div>
+
+          ${missedInThisChapter.length > 0 ? `
+            <div class="bg-amber-100 border-3 border-amber-400 rounded-2xl p-4 mb-6 flex items-center gap-3 shadow-md animate-pulse">
+              <span class="text-3xl">⚠️</span>
+              <div>
+                <h4 class="font-black text-amber-950 text-sm md:text-base">Pay more attention to these parts!</h4>
+                <p class="text-xs md:text-sm font-bold text-amber-900 leading-snug">
+                  You missed <b>${missedInThisChapter.length} vocabulary term(s)</b> during the review quiz. They are highlighted in <span class="bg-yellow-300 px-2 py-0.5 rounded-md font-black text-amber-950 border border-amber-400">yellow</span> below. Tap them to listen and master their definitions!
+                </p>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Live Progress Tracker Header -->
+          <div class="bg-gradient-to-r from-purple-50 via-pink-50 to-emerald-50 border-2 border-purple-200 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">🎯</span>
+              <p class="text-xs sm:text-sm font-black text-purple-900">
+                Tap each card to listen. Check all <span class="text-emerald-600">${totalTerms}</span> terms to auto-start the Quiz!
+              </p>
+            </div>
+            <div class="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-xl border border-purple-300 shadow-sm font-black text-sm">
+              <span>Progress:</span>
+              <span id="glossaryCounterText" class="text-emerald-600 font-black">0 / ${totalTerms}</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            ${listHtml}
+          </div>
+
+          <div class="border-t-2 border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span class="text-xs font-bold text-slate-400">💡 Tip: You don't need to click any small button, just tap anywhere on the card!</span>
+            <button onclick="showView('quiz', ${chNum})" class="duo-btn-green py-3.5 px-8 text-white rounded-2xl font-black text-base flex items-center gap-2">
+              <span>Skip Directly to Quiz 🚀</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function handleGlossaryCardClick(chNum, index) {
+      const ch = chaptersData[chNum];
+      const item = ch.glossary[index];
+      if (!item) return;
+
+      // 1. Speak term and definition directly
+      speakEnglish(`${item.term}. ${item.def}`);
+
+      // 2. Play tactile audio feedback
+      playTone('candy');
+
+      // 3. Mark card as checked
+      const card = document.getElementById(`glossaryCard_${index}`);
+      const defBox = document.getElementById(`glossaryDef_${index}`);
+      const checkBadge = document.getElementById(`glossaryCheck_${index}`);
+      const counter = document.getElementById('glossaryCounterText');
+
+      checkedGlossaryTerms.add(index);
+
+      if (checkBadge) {
+        checkBadge.className = "w-8 h-8 rounded-full border-2 border-emerald-500 bg-emerald-500 text-white flex items-center justify-center font-black text-sm flex-shrink-0 shadow-md animate-bounce";
+      }
+
+      if (card) {
+        card.classList.remove('border-purple-200', 'hover:border-purple-400');
+        card.classList.add('border-emerald-400', 'bg-emerald-50/20');
+      }
+
+      if (defBox) {
+        defBox.classList.remove('bg-purple-50/70', 'border-purple-200', 'text-slate-700');
+        defBox.classList.add('bg-emerald-50/80', 'border-emerald-300', 'text-emerald-950');
+      }
+
+      if (counter) {
+        counter.textContent = `${checkedGlossaryTerms.size} / ${ch.glossary.length}`;
+      }
+
+      // 4. Auto-advance when all terms are checked
+      if (checkedGlossaryTerms.size >= ch.glossary.length) {
+        updateMascotMessage("Awesome! You completed all vocabulary cards! Starting Review Quiz now...");
+        if (window.confetti) {
+          window.confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+        }
+        playTone('success');
+
+        if (glossaryAutoAdvanceTimer) clearTimeout(glossaryAutoAdvanceTimer);
+        glossaryAutoAdvanceTimer = setTimeout(() => {
+          showView('quiz', chNum);
+        }, 2200);
+      }
+    }
+
+    let currentQuizIndex = 0;
+    let quizQuestions = [];
+    let currentScore = 0;
+    let isRetestMode = false;
+
+    function renderQuizView(container, chNum, isRetest = false) {
+      isRetestMode = isRetest;
+      const ch = chaptersData[chNum];
+
+      if (isRetest) {
+        quizQuestions = state.wrongAnswers.slice();
+        updateMascotMessage("Targeted review mode! Let's practice the questions you missed to master this unit!");
+        speakEnglish(`Re-study practice! Let us practice the questions you missed to master ${ch.spokenTitle}!`);
+      } else {
+        quizQuestions = ch.reviewQuiz.slice();
+        state.wrongAnswers = [];
+        updateMascotMessage(`Chapter ${chNum} Review! Read carefully, think, and pick your answer!`);
+        speakEnglish(`${ch.spokenTitle} Review and Test Prep Quiz! Read carefully and pick the best answer!`);
+      }
+
+      currentQuizIndex = 0;
+      currentScore = 0;
+      displayCurrentQuizQuestion(container, chNum);
+    }
+
+    function displayCurrentQuizQuestion(container, chNum) {
+      const q = quizQuestions[currentQuizIndex];
+      const total = quizQuestions.length;
+      const progressPercent = Math.round((currentQuizIndex / total) * 100);
+
+      speakEnglish(q.question);
+
+      const optionsHtml = q.options.map((opt, i) => `
+        <button onclick="handleSelectAnswer('${opt.replace(/'/g, "\\'")}', '${q.answer.replace(/'/g, "\\'")}', ${chNum})" 
+          class="quiz-opt-btn duo-card w-full text-left p-4.5 rounded-2xl border-3 border-slate-200 hover:border-amber-400 bg-white font-black text-base text-slate-800 transition flex items-center justify-between shadow-sm">
+          <span>${opt}</span>
+          <span class="w-8 h-8 rounded-xl bg-slate-100 border border-slate-300 flex items-center justify-center text-xs font-black text-slate-600">
+            ${String.fromCharCode(65 + i)}
+          </span>
+        </button>
+      `).join('');
+
+      container.innerHTML = `
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-amber-300 max-w-2xl mx-auto w-full">
+          <div class="flex items-center justify-between gap-4 mb-6">
+            <button onclick="showView('map')" class="text-slate-400 hover:text-slate-600 font-black text-sm">✖ Cancel</button>
+            <div class="flex-grow bg-slate-100 h-4 rounded-full overflow-hidden border border-slate-200">
+              <div class="bg-emerald-500 h-full transition-all duration-300 rounded-full" style="width: ${progressPercent}%;"></div>
+            </div>
+            <span class="text-xs font-black text-amber-700">${currentQuizIndex + 1} / ${total}</span>
+          </div>
+
+          <div class="mb-4">
+            <span class="text-xs font-black uppercase tracking-wider px-3.5 py-1 rounded-full ${isRetestMode ? 'bg-orange-100 text-orange-800 border border-orange-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
+              ${isRetestMode ? '⚠️ Targeted Practice Question' : `Chapter ${chNum} Textbook Review`}
+            </span>
+          </div>
+
+          <div class="bg-amber-50/80 p-5 rounded-2xl border-2 border-amber-200 mb-6 flex items-start justify-between gap-4">
+            <h3 class="text-xl md:text-2xl font-black text-slate-800 leading-snug">
+              ${q.question}
+            </h3>
+            <button onclick="speakEnglish('${q.question.replace(/'/g, "\\'")}')" class="p-2.5 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded-2xl flex-shrink-0" title="Listen again">
+              🔊
+            </button>
+          </div>
+
+          <div class="space-y-3 mb-6">
+            ${optionsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function handleSelectAnswer(selected, correct, chNum) {
+      const q = quizQuestions[currentQuizIndex];
+      const isCorrect = selected.trim() === correct.trim();
+
+      document.querySelectorAll('.quiz-opt-btn').forEach(b => {
+        b.disabled = true;
+        if (b.innerText.includes(correct)) {
+          b.className = "quiz-opt-btn w-full text-left p-4.5 rounded-2xl border-3 border-emerald-500 bg-emerald-50 font-black text-base text-emerald-900 flex items-center justify-between shadow-md";
+        } else if (b.innerText.includes(selected) && !isCorrect) {
+          b.className = "quiz-opt-btn w-full text-left p-4.5 rounded-2xl border-3 border-rose-500 bg-rose-50 font-black text-base text-rose-900 flex items-center justify-between shadow-md";
+        }
+      });
+
+      if (isCorrect) {
+        playTone('success');
+        state.candies += 5;
+        currentScore++;
+        updateStatsUI();
+        speakEnglish("Awesome! That is correct!");
+        showFeedbackModal(true, "Great Job! 🎉", q.explanation, () => proceedNextQuestion(chNum));
+      } else {
+        playTone('error');
+        if (state.lives > 1) state.lives--;
+        updateStatsUI();
+        speakEnglish(`Oops! The correct answer is: ${correct}`);
+        if (!state.wrongAnswers.some(w => w.id === q.id)) {
+          state.wrongAnswers.push(q);
+        }
+        showFeedbackModal(false, "Not Quite Right! 💡", `Correct answer: <b>${correct}</b><br><br>${q.explanation}`, () => proceedNextQuestion(chNum));
+      }
+    }
+
+    function showFeedbackModal(isCorrect, title, message, nextCallback) {
+      const modal = document.getElementById('feedbackModal');
+      const card = document.getElementById('feedbackCard');
+      if (!modal || !card) return;
+
+      card.className = `bg-white rounded-3xl max-w-md w-full p-6 text-center border-4 ${isCorrect ? 'border-emerald-400' : 'border-rose-400'} shadow-2xl`;
+      card.innerHTML = `
+        <div class="w-18 h-18 mx-auto rounded-3xl flex items-center justify-center text-4xl mb-3 ${isCorrect ? 'bg-emerald-100' : 'bg-rose-100'}">
+          ${isCorrect ? '🌟' : '💡'}
+        </div>
+        <h4 class="text-2xl font-black ${isCorrect ? 'text-emerald-700' : 'text-rose-700'} mb-2">${title}</h4>
+        <div class="text-slate-600 text-sm font-bold mb-6 leading-relaxed">${message}</div>
+        <button id="feedbackNextBtn" class="${isCorrect ? 'duo-btn-green' : 'duo-btn-purple'} w-full py-4 px-6 text-white font-black text-lg rounded-2xl uppercase">
+          Continue ➡️
+        </button>
+      `;
+
+      modal.classList.remove('hidden');
+      const btn = document.getElementById('feedbackNextBtn');
+      btn.onclick = () => {
+        modal.classList.add('hidden');
+        if (nextCallback) nextCallback();
+      };
+    }
+
+    function proceedNextQuestion(chNum) {
+      currentQuizIndex++;
+      if (currentQuizIndex < quizQuestions.length) {
+        displayCurrentQuizQuestion(document.getElementById('appContainer'), chNum);
+      } else {
+        finishQuizEvaluation(chNum);
+      }
+    }
+
+    // Google Apps Script Webhook Endpoint URL
+    const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyAq9DVA2ee7Vtge9vND5PeucQposM_rYbup_nkP4DSvBxAkYmVBDcSeM3FefSy1g9x/exec";
+
+    /**
+     * Sends quiz results to Google Sheets in the background
+     * Formats grade as "3rd Chp {chNum} Sciences"
+     */
+    function saveResultsToExcel(userName, scorePercentage, chNum) {
+      const chapterNumber = chNum || state.currentChapterId || 11;
+      const gradeLabel = `3rd Chp ${chapterNumber} Sciences`;
+      const formattedScore = typeof scorePercentage === 'number' ? `${scorePercentage}%` : scorePercentage;
+
+      const data = {
+        name: userName || state.studentName || "Student",
+        grade: gradeLabel,
+        testResult: formattedScore,
+        date: new Date().toLocaleString()
+      };
+
+      fetch(ENDPOINT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify(data)
+      })
+      .then(() => {
+        console.log("Datos enviados correctamente a Google Sheets:", data);
+      })
+      .catch(err => {
+        console.error("Error en la conexión con el script:", err);
+      });
+    }
+
+    function finishQuizEvaluation(chNum) {
+      const total = quizQuestions.length;
+      const percent = Math.round((currentScore / total) * 100);
+      const passed = percent >= 80;
+
+      state.completedChapters[chNum] = {
+        score: percent,
+        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+      };
+      saveState();
+
+      // Automatically record results to Google Sheets in the background
+      saveResultsToExcel(state.studentName, percent, chNum);
+
+      if (passed) {
+        playTone('candy');
+        if (window.confetti) {
+          window.confetti({ particleCount: 140, spread: 85, origin: { y: 0.6 } });
+        }
+        speakEnglish(`Congratulations ${state.studentName}! You scored ${percent} percent and passed Chapter ${chNum}! Here is your official diploma!`);
+        showView('diploma', chNum);
+      } else {
+        playTone('error');
+        speakEnglish(`You scored ${percent} percent. You need eighty percent or higher to earn your diploma. Let us review the questions you missed!`);
+        renderNeedsReviewView(document.getElementById('appContainer'), chNum, percent);
+      }
+    }
+
+    function renderNeedsReviewView(container, chNum, scorePercent) {
+      const ch = chaptersData[chNum];
+      const missedCount = state.wrongAnswers.length;
+
+      speakEnglish(`You scored ${scorePercent} percent. Pay more attention to these parts! We highlighted everything you missed in yellow in both the lesson and glossary!`);
+
+      container.innerHTML = `
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-4 border-amber-300 max-w-xl mx-auto w-full text-center">
+          <div class="w-20 h-20 mx-auto bg-amber-100 rounded-3xl flex items-center justify-center text-4xl mb-4 border-2 border-amber-300 animate-wiggle">
+            📚
+          </div>
+          <span class="text-xs font-black uppercase text-amber-700 tracking-wider">Review Mode Triggered</span>
+          <h2 class="text-3xl font-black text-slate-800 mt-1 mb-2">Keep Practicing, ${state.studentName}!</h2>
+          <p class="text-slate-600 font-extrabold mb-4">
+            You scored <span class="text-rose-600 font-black text-xl">${scorePercent}%</span> on Chapter ${chNum}: <b>${ch.title}</b>.
+            To earn the official diploma, you need <b>eighty percent or more</b>!
+          </p>
+
+          <div class="bg-yellow-100 border-3 border-amber-400 rounded-2xl p-4 text-left mb-6 shadow-sm">
+            <h4 class="font-black text-amber-950 text-sm md:text-base mb-1 flex items-center gap-2">
+              <span>⚠️</span> Pay more attention to these parts!
+            </h4>
+            <p class="text-xs md:text-sm font-bold text-amber-900 leading-relaxed">
+              We marked the <b>${missedCount} concept(s) and vocabulary terms</b> you missed in <span class="bg-yellow-300 font-black px-1.5 py-0.5 rounded text-amber-950 border border-amber-400">bright yellow</span> inside both the <b>Lesson</b> and the <b>Glossary</b>.
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-3">
+            <button onclick="showView('retest')" class="duo-btn-amber w-full py-4 text-white font-black text-lg rounded-2xl flex items-center justify-center gap-2">
+              <span>🔁 Re-study Missed Questions Now (${missedCount})</span>
+            </button>
+            <div class="grid grid-cols-2 gap-3">
+              <button onclick="showView('lesson', ${chNum})" class="py-3.5 bg-yellow-300 hover:bg-yellow-400 text-amber-950 font-black text-sm rounded-2xl border-2 border-amber-400 transition shadow-sm flex items-center justify-center gap-1.5">
+                <span>📖</span> Review Lesson (Yellow Parts)
+              </button>
+              <button onclick="showView('glossary', ${chNum})" class="py-3.5 bg-yellow-300 hover:bg-yellow-400 text-amber-950 font-black text-sm rounded-2xl border-2 border-amber-400 transition shadow-sm flex items-center justify-center gap-1.5">
+                <span>📚</span> Review Glossary (Yellow Parts)
+              </button>
+            </div>
+            <button onclick="showView('map')" class="text-slate-400 hover:text-slate-600 font-black text-xs mt-2">
+              Back to Chapter Map
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDiplomaView(container, chNum) {
+      const ch = chaptersData[chNum];
+      const record = state.completedChapters[chNum] || { 
+        score: 95, 
+        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
+      };
+
+      updateMascotMessage(`Congratulations ${state.studentName}! You earned your official Diploma for Chapter ${chNum}!`);
+
+      container.innerHTML = `
+        <div class="flex flex-col items-center gap-6 max-w-4xl mx-auto w-full">
+          <!-- Diploma Printable Sheet -->
+          <div id="diplomaPaper" class="relative w-full bg-gradient-to-b from-amber-50 to-orange-50/40 border-8 border-amber-400 rounded-3xl p-8 md:p-12 shadow-2xl text-center overflow-hidden">
+            <!-- Decorative corner stamps -->
+            <div class="absolute top-4 left-4 text-4xl animate-float">🌟</div>
+            <div class="absolute top-4 right-4 text-4xl animate-float">${state.equippedAvatar || '🧑‍🔬'}</div>
+            <div class="absolute bottom-4 left-4 text-4xl animate-float">🔬</div>
+            <div class="absolute bottom-4 right-4 text-4xl animate-float">🏅</div>
+
+            <!-- Top Header Badge -->
+            <div class="inline-block bg-amber-200/80 border-2 border-amber-400 text-amber-900 font-black text-xs md:text-sm px-5 py-1.5 rounded-full uppercase tracking-widest mb-4 shadow-sm">
+              OFFICIAL FOOTPRINTS SCIENCE ACADEMY
+            </div>
+
+            <h1 class="text-3xl md:text-5xl font-black text-indigo-950 tracking-tight mb-2">
+              DIPLOMA OF EXCELLENCE 🏆
+            </h1>
+            <p class="text-sm md:text-base font-extrabold text-slate-600 mb-6">
+              This prestigious honors certificate is proudly awarded to:
+            </p>
+
+            <!-- Student Name box -->
+            <div class="inline-block my-2 px-10 py-3 bg-white border-4 border-amber-400 rounded-2xl shadow-lg animate-glow">
+              <span class="text-3xl md:text-5xl font-black text-amber-600 tracking-wide underline decoration-amber-300">
+                ${state.studentName}
+              </span>
+            </div>
+
+            <p class="text-base md:text-lg font-black text-slate-700 max-w-2xl mx-auto mt-6 mb-6 leading-relaxed">
+              For mastering with high distinction <span class="text-emerald-700">Chapter ${chNum}: "${ch.title}"</span> 
+              with an outstanding score of <span class="text-emerald-800 bg-emerald-100 border border-emerald-300 px-3.5 py-1 rounded-full font-black">${record.score}%</span> 
+              in the interactive science assessment!
+            </p>
+
+            <!-- Emojis & Honors Badges -->
+            <div class="flex items-center justify-center gap-5 text-4xl my-5">
+              <span>🌟</span>
+              <span>🧪</span>
+              <span>🎉</span>
+              <span>🪐</span>
+              <span>🍬</span>
+            </div>
+
+            <!-- Signatures line -->
+            <div class="border-t-2 border-amber-300 pt-6 mt-8 flex flex-col sm:flex-row items-center justify-between text-xs md:text-sm text-slate-600 font-black gap-4">
+              <div class="flex flex-col items-center">
+                <span class="text-slate-400 uppercase text-[10px] tracking-wider">Date Awarded</span>
+                <span class="text-slate-800 text-base font-extrabold">${record.date}</span>
+              </div>
+              <div class="flex flex-col items-center">
+                <div class="w-18 h-18 bg-amber-400 text-amber-950 rounded-full flex items-center justify-center text-3xl font-black border-4 border-amber-500 shadow-md">
+                  SEAL
+                </div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-slate-400 uppercase text-[10px] tracking-wider">Authorized Science Instructor</span>
+                <span class="text-emerald-700 font-black text-lg border-b-2 border-emerald-500 pb-0.5">Ing. Milko Gonzales C.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap gap-4 justify-center">
+            <button onclick="window.print()" class="duo-btn-purple py-3.5 px-7 text-white rounded-2xl font-black text-base flex items-center gap-2 shadow-lg">
+              <span>🖨️ Print / Save Diploma</span>
+            </button>
+            <button onclick="showView('map')" class="duo-btn-green py-3.5 px-7 text-white rounded-2xl font-black text-base flex items-center gap-2 shadow-lg">
+              <span>🗺️ Explore Next Chapter</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
